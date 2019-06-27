@@ -214,7 +214,7 @@ end
 function container:drag(x, y, button, player)
   if not self.disabled then
     for i = #self.entries, 1, -1 do
-      if self.entries[i]:drag then
+      if self.entries[i].drag then
         if self.entries[i]:drag(x, y, button, player) then
           return true
         end
@@ -226,7 +226,7 @@ end
 function container:scroll(x, y, dir, player)
   if not self.disabled then
     for i = #self.entries, 1, -1 do
-      if self.entries[i]:scroll then
+      if self.entries[i].scroll then
         if self.entries[i]:scroll(x, y, dir, player) then
           return true
         end
@@ -239,7 +239,7 @@ function container:key(char, code, player)
   if not self.disabled then
     self:customKeys(char, code, player)
     for i = #self.entries, 1, -1 do
-      if self.entries[i]:key then
+      if self.entries[i].key then
         if self.entries[i]:key(char, code, player) then
           return true
         end
