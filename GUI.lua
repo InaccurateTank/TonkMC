@@ -37,7 +37,7 @@ local function ArrayRemove(tab, fnKeep) -- Optimized table removal function ripp
       tab[i] = nil
     end
   end
-  return t
+  return tab
 end
 
 local function hitbox(obj, x, y, comp) -- Due to how often we check positions, heres a function to see if the cursor is on the object
@@ -136,7 +136,7 @@ end
 function GUI.resetBack() -- Resets colors to their pre-GUI state and clears the screen.
   gpu.setBackground(BACKGROUND)
   gpu.setForeground(FOREGROUND)
-  gpu.fill(self.x, self.y, self.width, self.height, " ")
+  gpu.fill(1, 1, SCREEN_WIDTH, SCREEN_HEIGHT, " ")
 end
 
 -----Container Object: Used for the GUI Manager and Windows-----
@@ -275,7 +275,6 @@ function box:new(x, y, width, height, back)
   obj.y = y
   obj.width = width
   obj.height = height
-  obj.fore = fore
   self.__index = self
   return obj
 end
@@ -285,8 +284,8 @@ function box:draw()
   gpu.fill(self.x, self.y, self.width, self.height, " ")
 end
 
-function GUI.newBox(con, x, y, width, height, back, fore)
-  local obj = box:new(x + con.x - 1, y + con.y - 1, width, height, back, fore)
+function GUI.newBox(con, x, y, width, height, back)
+  local obj = box:new(x + con.x - 1, y + con.y - 1, width, height, back)
   con.entries[#con.entries+1] = obj
   return obj
 end
@@ -591,6 +590,7 @@ radio.disabled = false
 radio.active = false
 
 function radio:new(x, y, back, fore)
+  local obj = setmetatable({}, self)
   obj.x = x
   obj.y = y
   obj.width = 3
@@ -758,7 +758,7 @@ function pbar:new(x, y, width, height, inactive, active, current, max, thin, ver
 end
 
 function pbar:draw()
-  if not vert then
+  if not self.vert then
     local active = math.floor(math.min(self.current, self.max) / self.max * self.width)
     if self.thin then
       gpu.setForeground(self.inactive)
@@ -794,7 +794,7 @@ function pbar:refresh(current)
   end
 end
 
-function GUI.newBar(container, x, y, width, height, inactive, active, current, max, thin, vert)
+function GUI.newBar(con, x, y, width, height, inactive, active, current, max, thin, vert)
   local obj = pbar:new(x + con.x - 1, y + con.y - 1, width, height, inactive, active, current, max, thin, vert)
   con.entries[#con.entries+1] = obj
   return obj
