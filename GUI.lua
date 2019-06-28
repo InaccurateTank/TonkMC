@@ -1313,33 +1313,15 @@ Public Functions:
   draw               : draws the object
 ]]--
 local scroll = {}
--- scroll.max = false
--- scroll.min = true
--- scroll.upPressed = false
--- scroll.downPressed = false
 
 function scroll:new(tether, back, fore, backPressed, forePressed)
   local obj = setmetatable({}, self)
   obj.x = tether.x + tether.width
-  obj.y = tether.y --, 1
+  obj.y = tether.y
   obj.width = 1
   obj.height = tether.height
   obj.back = back
   obj.fore = fore
-  -- obj.presets = {
-  --   default = {
-  --     background = back,
-  --     text = fore
-  --   },
-  --   pressed = {
-  --     background = backPressed,
-  --     text = forePressed
-  --   },
-  --   disabled = {
-  --     background = 0x333333,
-  --     text = 0xcccccc
-  --   }
-  -- }
   obj.tether = tether
   obj.upButton = button:new(obj.x, obj.y, 1, 1, back, fore, backPressed, forePressed, "▲")
   obj.upButton.disabled = true
@@ -1384,78 +1366,12 @@ function scroll:draw()
   gpu.fill(self.x, self.y, self.width, self.height, " ")
   self.upButton:draw()
   self.downButton:draw()
-  -- gpu.setBackground(self.presets.default.background)
-  -- gpu.setForeground(self.presets.default.text)
-  -- gpu.fill(self.x, self.y, self.width, self.height, " ")
-  -- if self.upPressed then
-  --   gpu.setBackground(self.presets.pressed.background)
-  --   gpu.setForeground(self.presets.pressed.text)
-  -- elseif self.min then
-  --   gpu.setBackground(self.presets.disabled.background)
-  --   gpu.setForeground(self.presets.disabled.text)
-  -- end
-  -- gpu.set(self.x, self.y, "▲")
-  -- if self.downPressed then
-  --   gpu.setBackground(self.presets.pressed.background)
-  --   gpu.setForeground(self.presets.pressed.text)
-  -- elseif self.max then
-  --   gpu.setBackground(self.presets.disabled.background)
-  --   gpu.setForeground(self.presets.disabled.text)
-  -- else
-  -- gpu.setBackground(self.presets.default.background)
-  -- gpu.setForeground(self.presets.default.text)
-  -- end
-  -- gpu.set(self.x, self.y + self.height - 1, "▼")
 end
 
 function scroll:touch(x, y, button, player, con)
   if self.upButton:touch(x, y, button, player, con) or self.downButton:touch(x, y, button, player, con) then
     return true
   end
-  -- if x == self.x and y == self.y and not self.tether.disabled then
-  --   if self.tether.yOffset ~= 0 then
-  --     self.tether.yOffset = self.tether.yOffset - 1
-  --     self.tether:draw()
-  --     self.upPressed = not self.upPressed
-  --     if self.tether.yOffset == 0 then
-  --       self.min = true
-  --     else
-  --       self.min = false
-  --     end
-  --     if not self.tether:scrollCheck() then
-  --       self.max = true
-  --     else
-  --       self.max = false
-  --     end
-  --     self:draw()
-  --     os.sleep(0.10)
-  --     self.upPressed = not self.upPressed
-  --     self:draw()
-  --     return true
-  --   end
-  -- end
-  -- if x == self.x and y == self.y + self.height - 1 and not self.tether.disabled then
-  --   if self.tether:scrollCheck() then
-  --     self.tether.yOffset = self.tether.yOffset + 1
-  --     self.tether:draw()
-  --     self.downPressed = not self.downPressed
-  --     if self.tether.yOffset == 0 then
-  --       self.min = true
-  --     else
-  --       self.min = false
-  --     end
-  --     if not self.tether:scrollCheck() then
-  --       self.max = true
-  --     else
-  --       self.max = false
-  --     end
-  --     self:draw()
-  --     os.sleep(0.10)
-  --     self.downPressed = not self.downPressed
-  --     self:draw()
-  --     return true
-  --   end
-  -- end
 end
 
 function scroll:scroll(x, y, dir, player, con)
