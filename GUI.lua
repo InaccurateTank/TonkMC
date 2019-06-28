@@ -195,43 +195,43 @@ end
 function container:customKeys(char, code, player)
 end
 
-function container:touch(con, x, y, button, player)
+function container:touch(x, y, button, player, con)
   if hitbox(self, x, y, not self.disabled) then
-    if con.entries[#con.entries] ~= self then
+    if con ~= nil and con.entries[#con.entries] ~= self then
       con.moveToFront(self)
     end
     for i = #self.entries, 1, -1 do
       if self.entries[i].touch then
-        if self.entries[i]:touch(self, x, y, button, player) then
-          break
-        end
+        if self.entries[i]:touch(x, y, button, player, self) then break end
       end
     end
     return true
   end
 end
 
-function container:drag(x, y, button, player)
-  if not self.disabled then
-    for i = #self.entries, 1, -1 do
-      if self.entries[i].drag then
-        if self.entries[i]:drag(x, y, button, player) then
-          return true
-        end
-      end
-    end
-  end
-end
+-- function container:drag(x, y, button, player)
+--   if not self.disabled then
+--     for i = #self.entries, 1, -1 do
+--       if self.entries[i].drag then
+--         if self.entries[i]:drag(x, y, button, player) then
+--           return true
+--         end
+--       end
+--     end
+--   end
+-- end
 
-function container:scroll(x, y, dir, player)
-  if not self.disabled then
+function container:scroll(x, y, dir, player, con)
+  if hitbox(self, x, y, not self.disabled) then
+    if con ~= nil and con.entries[#con.entries] ~= self then
+      con.moveToFront(self)
+    end
     for i = #self.entries, 1, -1 do
       if self.entries[i].scroll then
-        if self.entries[i]:scroll(x, y, dir, player) then
-          return true
-        end
+        if self.entries[i]:scroll(x, y, dir, player, self) then break end
       end
     end
+    return true
   end
 end
 
@@ -384,7 +384,7 @@ function label:new(x, y, width, back, fore, text, fill, fillFore)
   obj.back = back
   obj.fore = fore
   obj.fill = fill
-  obj.fillFore = fillFore
+  obj.fillFore = fillFore or obj.fore
   self.__index = self
   return obj
 end
@@ -540,7 +540,7 @@ function button:draw()
   end
 end
 
-function button:touch(con, x, y, button, player)
+function button:touch(x, y, button, player, con)
   if hitbox(self, x, y, not self.disabled) then
     self.onTouch(player)
     self.pressed = not self.pressed
@@ -620,11 +620,11 @@ function radio:draw()
   end
 end
 
-function radio:touch(con, x, y, button, player)
+function radio:touch(x, y, button, player, con)
   if hitbox(self, x, y, not self.disabled) then
     if self.active == false then
       self.active = not self.active
-      self:onActive(player)
+      self.onActive(player)
     else
       self.active = not self.active
     end
@@ -931,7 +931,7 @@ function input:draw()
   end
 end
 
-function input:touch(con, x, y, button, player)
+function input:touch(x, y, button, player, con)
   if hitbox(self, x, y, not self.disabled) then
     con:moveToFront(self)
     self.focus = true
@@ -1255,7 +1255,7 @@ function list:draw()
   end
 end
 
-function list:touch(con, x, y, button, player)
+function list:touch(x, y, button, player, con)
   if hitbox(self, x, y, not self.disabled) then
       local id = math.ceil((y - self.y + 1) / (self.sep * 2 + 1))+self.yOffset
       self.selected = id
@@ -1320,7 +1320,7 @@ local scroll = {}
 function scroll:new(tether, back, fore, backPressed, forePressed)
   local obj = setmetatable({}, self)
   obj.x = tether.x + tether.width
-  obj.y = tether.y, 1
+  obj.y = tether.y --, 1
   obj.width = 1
   obj.height = tether.height
   obj.back = back
@@ -1407,8 +1407,8 @@ function scroll:draw()
   -- gpu.set(self.x, self.y + self.height - 1, "▼")
 end
 
-function scroll:touch(con, x, y, button, player)
-  if self.upButton:touch(con, x, y, button, player) or self.downButton:touch(con, x, y, button, player) then
+function scroll:touch(x, y, button, player, con)
+  if self.upButton:touch(x, y, button, player, con) or self.downButton:touch(x, y, button, player, con) then
     return true
   end
   -- if x == self.x and y == self.y and not self.tether.disabled then
@@ -1457,7 +1457,7 @@ function scroll:touch(con, x, y, button, player)
   -- end
 end
 
-function scroll:scroll(x, y, dir, player)
+function scroll:scroll(x, y, dir, player, con)
   if hitbox(self.tether, x, y, not self.tether.disabled) then
     if dir == -1 then
       if self.tether:scrollCheck() then
@@ -1503,18 +1503,11 @@ Public Functions:
 local function eventThread(tab)
   local r = true
   while r do
-    local name, _, a1, a2, a3, a4 = event.pullMultiple("touch", "drag", "scroll", "key_down")
+    local name, _, a1, a2, a3, a4 = event.pullMultiple("touch", "scroll", "key_down")
     if name == "touch" then
-      for i = #tab.entries, 1, -1 do
-        if tab.entries[i].touch then
-          if tab.entries[i]:touch(tab, a1, a2, a3, a4) then
-            break
-          end
-        end
-        -- if tab.entries[i]:touch(tab, a1, a2, a3, a4) then break end
-      end
-    elseif name == "drag" then
-      tab:drag(a1, a2, a3, a4)
+      tab:touch(a1, a2, a3, a4)
+    -- elseif name == "drag" then
+    --   tab:drag(a1, a2, a3, a4)
     elseif name == "scroll" then
       tab:scroll(a1, a2, a3, a4)
     elseif name == "key_down" then
