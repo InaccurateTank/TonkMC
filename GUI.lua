@@ -959,6 +959,7 @@ function input:touch(x, y, button, player, con)
       self.focus = false
       self:draw()
     end
+    return false
   end
 end
 
@@ -1098,8 +1099,8 @@ function GUI.newInput(con, x, y, width, height, back, fore, idleBack, idleFore, 
 end
 
 --[[
-Input Object
-  Text input box with primative wrapping function.  Supports most basic inputs.
+List Object
+  Creates an interactable list of items.  For non-interactable lists use the text box.
 
 Parameters:
   con                : container that the object belongs to
