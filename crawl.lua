@@ -11,6 +11,11 @@ local copybuffer = "" -- File Path for copying
 local RUNNING = true
 local prog = GUI.manager(RUNNING)
 
+local newGUI = GUI.newWindow(prog, 21, 3, 42, 20, 0xcccccc, 0x000000)
+newGUI.disabled = true
+local mainGUI = GUI.newWindow(prog, 1, 1, prog.width, prog.height, 0xcccccc)
+--mainGUI.back = 0xcccccc
+
 local function close()
   prog:stop()
   term.setCursor(1, 1)
@@ -18,9 +23,6 @@ local function close()
 end
 
 -----New File Window-----
-local newGUI = GUI.newWindow(prog, 21, 3, 42, 20, 0xcccccc, 0x000000)
-newGUI.disabled = true
-
 GUI.newLabel(newGUI, 1, 1, newGUI.width, 0x333399, 0xffffff, "Create New...")
 GUI.newLabel(newGUI, 2, 3, 1, newGUI.background, 0x000000, "Path:")
 GUI.newLabel(newGUI, 2, 5, 1, newGUI.background, 0x000000, "Name:")
@@ -50,10 +52,6 @@ local cancelButton = GUI.newButton(newGUI, 31, 19, 1, 0, 0x333399, 0xffffff, 0xf
 
 
 -----Main Window-----
-local mainGUI = GUI.newWIndow()
-mainGUI.back = 0xcccccc
-
-
 local title = GUI.newLabel(mainGUI, 1, 1, mainGUI.width, 0x333399, 0xffffff, PROG_NAME.." v:"..VER)
 title.align = "left"
 local exit = GUI.newButton(mainGUI, 80, 1, 0, 0, 0xff3333, 0xff3333, 0xffffff, 0xffffff, " ")
@@ -210,7 +208,7 @@ local function listPopulate()
   fileList:clearEntries()
   dirList:clearEntries()
   for i = 1, #folder do
-    fileList:newSub(folder[i], function(id)
+    fileList:newEntry(folder[i], function(id)
       if fileList.entries[id].text == "..." then
         if fileList.confirm == id then
           fspath = treeDown(fspath)
@@ -255,7 +253,7 @@ local function listPopulate()
     end)
   end
   for i = 1, #pathtab do
-    dirList:newSub(pathtab[i], function(id)
+    dirList:newEntry(pathtab[i], function(id)
       if dirList.confirm == id then
         fspath = table.concat(pathtab, "", 1, id)
         listPopulate()
