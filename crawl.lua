@@ -17,15 +17,13 @@ local function close()
   os.exit()
 end
 
-local newGUI = GUI.newContainer(21, 3, 42, 20, 0xcccccc, 0x000000)
+-----New File Window-----
+local newGUI = GUI.newWindow(prog, 21, 3, 42, 20, 0xcccccc, 0x000000)
 newGUI.disabled = true
 
-
-
------New File GUI-----
-GUI.newLabel(newGUI, 1, 1, newGUI.width, "Create New...", 0x333399, 0xffffff)
-GUI.newLabel(newGUI, 2, 3, 1, "Path:", newGUI.background, 0x000000)
-GUI.newLabel(newGUI, 2, 5, 1, "Name:", newGUI.background, 0x000000)
+GUI.newLabel(newGUI, 1, 1, newGUI.width, 0x333399, 0xffffff, "Create New...")
+GUI.newLabel(newGUI, 2, 3, 1, newGUI.background, 0x000000, "Path:")
+GUI.newLabel(newGUI, 2, 5, 1, newGUI.background, 0x000000, "Name:")
 local folderInput = GUI.newInput(newGUI, 7, 3, 35, 1, 0x333399, 0xffffff, 0x9933cc, 0xffffff, 0x9933cc)
 local nameInput = GUI.newInput(newGUI, 7, 5, 35, 1, 0x333399, 0xffffff, 0x9933cc, 0xffffff, 0x9933cc)
 folderInput.onReturn = function()
@@ -38,17 +36,25 @@ nameInput.onReturn = function()
   nameInput.focus = false
   nameInput:draw()
 end
-GUI.newLabel(newGUI, 1, 7, newGUI.width, "[Type (1-4)]", crawlerGUI.background, 0x000000, "-", 0x000000)
-GUI.newLabel(newGUI, 2, 9, 1, "Folder:", newGUI.background, 0x000000)
+GUI.newLabel(newGUI, 1, 7, newGUI.width, crawlerGUI.background, 0x000000, "[Type (1-4)]", "-", 0x000000)
+GUI.newLabel(newGUI, 2, 9, 1, newGUI.background, 0x000000, "Folder:")
 local folderRadio = GUI.newRadio(newGUI, 10, 9, newGUI.background, 0x000000)
-GUI.newLabel(newGUI, 2, 11, 1, ".txt:", newGUI.background, 0x000000)
+GUI.newLabel(newGUI, 2, 11, 1, newGUI.background, 0x000000, ".txt:")
 local txtRadio = GUI.newRadio(newGUI, 10, 11, newGUI.background, 0x000000)
-GUI.newLabel(newGUI, 2, 13, 1, ".lua:", newGUI.background, 0x000000)
+GUI.newLabel(newGUI, 2, 13, 1, newGUI.background, 0x000000, ".lua:")
 local luaRadio = GUI.newRadio(newGUI, 10, 13, newGUI.background, 0x000000)
-GUI.newLabel(newGUI, 2, 15, 1, "None:", newGUI.background, 0x000000)
+GUI.newLabel(newGUI, 2, 15, 1, newGUI.background, 0x000000, "None:")
 local naRadio = GUI.newRadio(newGUI, 10, 15, newGUI.background, 0x000000)
 local confirmButton = GUI.newButton(newGUI, 2, 19, 1, 0, 0x333399, 0xffffff, 0xffffff, 0x000000, "Confirm:")
 local cancelButton = GUI.newButton(newGUI, 31, 19, 1, 0, 0x333399, 0xffffff, 0xffffff, 0x000000, "(C)ancel:")
+
+
+repeat
+  os.sleep(0.25)
+until not RUNNING
+
+
+
 
 -----Main GUI-----
 local title = GUI.newLabel(crawlerGUI, 1, 1, crawlerGUI.width, PROG_NAME.." v:"..VER, 0x333399, 0xffffff)
