@@ -9,7 +9,7 @@ local EDIT = "shedit" -- Edit program used
 local fspath = "//home/" -- Default file path
 local copybuffer = "" -- File Path for copying
 local RUNNING = true
-local prog = GUI.manager(RUNNING, 0xcccccc)
+local prog = GUI.manager(RUNNING)
 
 local function close()
   prog:stop()
@@ -36,7 +36,7 @@ nameInput.onReturn = function()
   nameInput.focus = false
   nameInput:draw()
 end
-GUI.newLabel(newGUI, 1, 7, newGUI.width, crawlerGUI.background, 0x000000, "[Type (1-4)]", "-", 0x000000)
+GUI.newLabel(newGUI, 1, 7, newGUI.width, mainGUI.background, 0x000000, "[Type (1-4)]", "-", 0x000000)
 GUI.newLabel(newGUI, 2, 9, 1, newGUI.background, 0x000000, "Folder:")
 local folderRadio = GUI.newRadio(newGUI, 10, 9, newGUI.background, 0x000000)
 GUI.newLabel(newGUI, 2, 11, 1, newGUI.background, 0x000000, ".txt:")
@@ -49,6 +49,54 @@ local confirmButton = GUI.newButton(newGUI, 2, 19, 1, 0, 0x333399, 0xffffff, 0xf
 local cancelButton = GUI.newButton(newGUI, 31, 19, 1, 0, 0x333399, 0xffffff, 0xffffff, 0x000000, "(C)ancel:")
 
 
+
+
+-----Main Window-----
+local mainGUI = GUI.newWIndow()
+mainGUI.back = 0xcccccc
+
+
+local title = GUI.newLabel(mainGUI, 1, 1, mainGUI.width, 0x333399, 0xffffff, PROG_NAME.." v:"..VER)
+title.align = "left"
+local exit = GUI.newButton(mainGUI, 80, 1, 0, 0, 0xff3333, 0xff3333, 0xffffff, 0xffffff, " ")
+exit.onPress = close
+
+GUI.newLabel(mainGUI, 3, 3, 17, mainGUI.background, 0x000000, "[Folder Path]", "-", 0x000000)
+local dirList = GUI.newList(mainGUI, 3, 4, 16, 19, 0, 0x333399, 0xffffff, 0x9933cc, 0xffffff)
+dirList.align = "left"
+local dirScroll = GUI.newScroll(mainGUI, dirList, 0x333399, 0xffffff, 0x5599ff, 0xffffff)
+
+GUI.newLabel(mainGUI, 64, 3, 15, mainGUI.background, 0x000000, "[Type]", "-", 0x000000)
+local typeLabel = GUI.newLabel(mainGUI, 64, 4, 15, mainGUI.background, 0x000000, "")
+typeLabel.align = "left"
+GUI.newLabel(mainGUI, 64, 6, 15, mainGUI.background, 0x000000, "[Last Mod]", "-", 0x000000)
+local modLabel = GUI.newLabel(mainGUI, 64, 7, 15, mainGUI.background, 0x000000, "")
+modLabel.align = "left"
+GUI.newLabel(mainGUI, 64, 9, 15, mainGUI.background, 0x000000, "[Notifications]", "-", 0x000000)
+local notes = GUI.newText(mainGUI, 64, 10, 15, 6, 0x333399, 0xffffff, "")
+
+local fileList = GUI.newList(mainGUI, 21, 3, 41, 20, 0, 0x333399, 0xffffff, 0x9933cc, 0xffffff)
+fileList.align = "left"
+local fileScroll = GUI.newScroll(mainGUI, fileList, 0x333399, 0xffffff, 0x5599ff, 0xffffff)
+
+local manInput = GUI.newInput(mainGUI, 3, 24, 76, 1, 0x333399, 0xffffff, 0x9933cc, 0xffffff, 0x9933cc, "Manual Commands Here", 0xffffff)
+manInput.onReturn = function()
+end
+
+local newButton = GUI.newButton(mainGUI, 64, 17, 4, 0, 0x333399, 0xffffff, 0xffffff, 0x000000, "(N)ew: ")
+local delButton = GUI.newButton(mainGUI, 64, 18, 3, 0, 0x333399, 0xffffff, 0xffffff, 0x000000, "(Del)ete:")
+delButton.confirm = false
+local runButton = GUI.newButton(mainGUI, 64, 19, 4, 0, 0x333399, 0xffffff, 0xffffff, 0x000000, "(R)un: ")
+runButton.disabled = true
+local editButton = GUI.newButton(mainGUI, 64, 20, 4, 0, 0x333399, 0xffffff, 0xffffff, 0x000000, "(E)dit:")
+editButton.disabled = true
+local copyButton = GUI.newButton(mainGUI, 64, 21, 5, 0, 0x333399, 0xffffff, 0xffffff, 0x000000, "Copy:")
+copyButton.switch = true
+copyButton.disabled = true
+local cutButton = GUI.newButton(mainGUI, 64, 22, 5, 0, 0x333399, 0xffffff, 0xffffff, 0x000000, "Cut: ")
+cutButton.switch = true
+cutButton.disabled = true
+
 repeat
   os.sleep(0.25)
 until not RUNNING
@@ -56,47 +104,7 @@ until not RUNNING
 
 
 
------Main GUI-----
-local title = GUI.newLabel(crawlerGUI, 1, 1, crawlerGUI.width, PROG_NAME.." v:"..VER, 0x333399, 0xffffff)
-title.align = "left"
-local exit = GUI.newButton(crawlerGUI, 80, 1, 0, 0, 0xff3333, 0xff3333, 0xffffff, 0xffffff, " ")
-exit.onPress = close
 
-GUI.newLabel(crawlerGUI, 3, 3, 17, "[Folder Path]", crawlerGUI.background, 0x000000, "-", 0x000000)
-local dirList = GUI.newList(crawlerGUI, 3, 4, 16, 19, 0, 0x333399, 0xffffff, 0x9933cc, 0xffffff)
-dirList.align = "left"
-local dirScroll = GUI.newScroll(crawlerGUI, dirList, 0x333399, 0xffffff, 0x5599ff, 0xffffff)
-
-GUI.newLabel(crawlerGUI, 64, 3, 15, "[Type]", crawlerGUI.background, 0x000000, "-", 0x000000)
-local typeLabel = GUI.newLabel(crawlerGUI, 64, 4, 15, "", crawlerGUI.background, 0x000000)
-typeLabel.align = "left"
-GUI.newLabel(crawlerGUI, 64, 6, 15, "[Last Mod]", crawlerGUI.background, 0x000000, "-", 0x000000)
-local modLabel = GUI.newLabel(crawlerGUI, 64, 7, 15, "", crawlerGUI.background, 0x000000)
-modLabel.align = "left"
-GUI.newLabel(crawlerGUI, 64, 9, 15, "[Notifications]", crawlerGUI.background, 0x000000, "-", 0x000000)
-local notes = GUI.newText(crawlerGUI, 64, 10, 15, 6, "", 0x333399, 0xffffff)
-
-local fileList = GUI.newList(crawlerGUI, 21, 3, 41, 20, 0, 0x333399, 0xffffff, 0x9933cc, 0xffffff)
-fileList.align = "left"
-local fileScroll = GUI.newScroll(crawlerGUI, fileList, 0x333399, 0xffffff, 0x5599ff, 0xffffff)
-
-local manInput = GUI.newInput(crawlerGUI, 3, 24, 76, 1, 0x333399, 0xffffff, 0x9933cc, 0xffffff, 0x9933cc, "Manual Commands Here", 0xffffff)
-manInput.onReturn = function()
-end
-local newButton = GUI.newButton(crawlerGUI, 64, 17, 4, 0, 0x333399, 0xffffff, 0xffffff, 0x000000, "(N)ew: ")
-
-local delButton = GUI.newButton(crawlerGUI, 64, 18, 3, 0, 0x333399, 0xffffff, 0xffffff, 0x000000, "(Del)ete:")
-delButton.confirm = false
-local runButton = GUI.newButton(crawlerGUI, 64, 19, 4, 0, 0x333399, 0xffffff, 0xffffff, 0x000000, "(R)un: ")
-runButton.disabled = true
-local editButton = GUI.newButton(crawlerGUI, 64, 20, 4, 0, 0x333399, 0xffffff, 0xffffff, 0x000000, "(E)dit:")
-editButton.disabled = true
-local copyButton = GUI.newButton(crawlerGUI, 64, 21, 5, 0, 0x333399, 0xffffff, 0xffffff, 0x000000, "Copy:")
-copyButton.switch = true
-copyButton.disabled = true
-local cutButton = GUI.newButton(crawlerGUI, 64, 22, 5, 0, 0x333399, 0xffffff, 0xffffff, 0x000000, "Cut: ")
-cutButton.switch = true
-cutButton.disabled = true
 
 -----Program Functions-----
 local function treeUpdate(path) -- returns two tables, one of the file path and another of the folder contents.
@@ -369,17 +377,17 @@ delButton.onPress = function()
 end
 runButton.onPress = function()
   GUI.resetBack()
-  crawlerGUI.disabled = true
+  mainGUI.disabled = true
   os.execute(fspath..fileList.entries[fileList.selected].text.." \""..(manInput.text[1] or "").."\"")
-  crawlerGUI.disabled = false
-  crawlerGUI:draw()
+  mainGUI.disabled = false
+  mainGUI:draw()
 end
 editButton.onPress = function()
   GUI.resetBack()
-  crawlerGUI.disabled = true
+  mainGUI.disabled = true
   os.execute(EDIT.." \""..fspath..fileList.entries[fileList.selected].text.."\"")
-  crawlerGUI.disabled = false
-  crawlerGUI:draw()
+  mainGUI.disabled = false
+  mainGUI:draw()
 end
 copyButton.onPress = function()
   if not copyButton.pressed then
@@ -419,21 +427,21 @@ end
 
 -----Event Handler-----
 function touch(name, address, x, y, button, player)
-  crawlerGUI:press(x, y)
+  mainGUI:press(x, y)
   newGUI:press(x, y)
 end
 function scroll(name, address, x, y, dir, player)
-  crawlerGUI:scroll(x, y, dir)
+  mainGUI:scroll(x, y, dir)
   newGUI:scroll(x, y, dir)
 end
 function key(name, address, char, code, player)
-  crawlerGUI:key(char, code, player)
+  mainGUI:key(char, code, player)
   newGUI:key(char, code, player)
 end
 
 -----Run-----
 listPopulate()
-crawlerGUI:draw()
+mainGUI:draw()
 event.listen("touch", touch)
 event.listen("scroll", scroll)
 event.listen("key_down", key)
