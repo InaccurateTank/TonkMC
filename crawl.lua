@@ -49,8 +49,6 @@ local confirmButton = GUI.newButton(newGUI, 2, 19, 1, 0, 0x333399, 0xffffff, 0xf
 local cancelButton = GUI.newButton(newGUI, 31, 19, 1, 0, 0x333399, 0xffffff, 0xffffff, 0x000000, "(C)ancel:")
 
 
-
-
 -----Main Window-----
 local mainGUI = GUI.newWIndow()
 mainGUI.back = 0xcccccc
@@ -100,6 +98,14 @@ cutButton.disabled = true
 repeat
   os.sleep(0.25)
 until not RUNNING
+
+
+
+
+
+
+
+
 
 
 
