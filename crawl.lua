@@ -9,12 +9,12 @@ local EDIT = "shedit" -- Edit program used
 local fspath = "//home/" -- Default file path
 local copybuffer = "" -- File Path for copying
 local RUNNING = true
-local prog = GUI.manager(RUNNING)
 
-local newGUI = GUI.newWindow(prog, 21, 3, 42, 20, 0xcccccc, 0x000000)
-newGUI.disabled = true
+local prog = GUI.manager(RUNNING)
 local mainGUI = GUI.newWindow(prog, 1, 1, prog.width, prog.height, 0xcccccc)
 --mainGUI.back = 0xcccccc
+local newGUI = GUI.newWindow(prog, 21, 3, 42, 20, 0xcccccc, 0x000000)
+newGUI.disabled = true
 
 local function close()
   prog:stop()
@@ -92,10 +92,6 @@ copyButton.disabled = true
 local cutButton = GUI.newButton(mainGUI, 64, 22, 5, 0, 0x333399, 0xffffff, 0xffffff, 0x000000, "Cut: ")
 cutButton.switch = true
 cutButton.disabled = true
-
-
-
-
 
 
 -----Program Functions-----
@@ -416,8 +412,6 @@ cutButton.onTouch = function()
     end
   end
 end
-
-
 
 
 listPopulate()
