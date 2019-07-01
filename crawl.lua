@@ -5,25 +5,17 @@ local term = require("term")
 
 local VER = 0.5
 local PROG_NAME = "/tank/crawl"
-local RUNNING = true
 local EDIT = "shedit" -- Edit program used
 local fspath = "//home/" -- Default file path
 local copybuffer = "" -- File Path for copying
-
+local prog = GUI.manager(0xcccccc)
 
 local function close()
-  RUNNING = false
-  event.ignore("touch", touch)
-  event.ignore("scroll", scroll)
-  event.ignore("key_down", key)
-  GUI.resetBack()
+  prog:stop()
   term.setCursor(1, 1)
   os.exit()
 end
 
-
-local crawlerGUI = GUI.newContainer()
-crawlerGUI.background = 0xcccccc
 local newGUI = GUI.newContainer(21, 3, 42, 20, 0xcccccc, 0x000000)
 newGUI.disabled = true
 
