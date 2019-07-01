@@ -8,7 +8,8 @@ local PROG_NAME = "/tank/crawl"
 local EDIT = "shedit" -- Edit program used
 local fspath = "//home/" -- Default file path
 local copybuffer = "" -- File Path for copying
-local prog = GUI.manager(0xcccccc)
+local RUNNING = true
+local prog = GUI.manager(RUNNING, 0xcccccc)
 
 local function close()
   prog:stop()
@@ -18,6 +19,8 @@ end
 
 local newGUI = GUI.newContainer(21, 3, 42, 20, 0xcccccc, 0x000000)
 newGUI.disabled = true
+
+
 
 -----New File GUI-----
 GUI.newLabel(newGUI, 1, 1, newGUI.width, "Create New...", 0x333399, 0xffffff)

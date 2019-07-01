@@ -1433,7 +1433,7 @@ local function eventThread(tab)
   end
 end
 
-function GUI.manager(back, fore)
+function GUI.manager(run, back, fore)
   local manager = container:new(1, 1, SCREEN_WIDTH, SCREEN_HEIGHT, back or BACKGROUND, fore or FOREGROUND)
   local t
   function manager:start()
@@ -1451,6 +1451,7 @@ function GUI.manager(back, fore)
     end
   end
   function manager:stop()
+    run = false
     t:kill()
     GUI.resetBack()
   end
