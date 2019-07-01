@@ -57,7 +57,7 @@ mainGUI.back = 0xcccccc
 local title = GUI.newLabel(mainGUI, 1, 1, mainGUI.width, 0x333399, 0xffffff, PROG_NAME.." v:"..VER)
 title.align = "left"
 local exit = GUI.newButton(mainGUI, 80, 1, 0, 0, 0xff3333, 0xff3333, 0xffffff, 0xffffff, " ")
-exit.onPress = close
+exit.onTouch = close
 
 GUI.newLabel(mainGUI, 3, 3, 17, mainGUI.background, 0x000000, "[Folder Path]", "-", 0x000000)
 local dirList = GUI.newList(mainGUI, 3, 4, 16, 19, 0, 0x333399, 0xffffff, 0x9933cc, 0xffffff)
@@ -94,18 +94,6 @@ copyButton.disabled = true
 local cutButton = GUI.newButton(mainGUI, 64, 22, 5, 0, 0x333399, 0xffffff, 0xffffff, 0x000000, "Cut: ")
 cutButton.switch = true
 cutButton.disabled = true
-
-repeat
-  os.sleep(0.25)
-until not RUNNING
-
-
-
-
-
-
-
-
 
 
 
@@ -283,14 +271,14 @@ local function listPopulate()
 end
 
 -----Pressable Init-----
-newButton.onPress = function()
+newButton.onTouch = function()
   fileList.disabled = true
   dirList.disabled = true
   newGUI.disabled = false
   folderInput.text[1] = fspath
   newGUI:draw()
 end
-cancelButton.onPress = function()
+cancelButton.onTouch = function()
   folderInput.text = {}
   nameInput.text = {}
   folderRadio.active = false
@@ -338,7 +326,7 @@ naRadio.onActive = function()
   folderRadio:draw()
 end
 
-confirmButton.onPress = function()
+confirmButton.onTouch = function()
   if folderRadio.active then
     if fs.exists(folderInput.text[1]..nameInput.text[1]) then
       notes:refresh("Folder Already Exists")
@@ -366,7 +354,7 @@ confirmButton.onPress = function()
   newGUI.disabled = true
   listPopulate()
 end
-delButton.onPress = function()
+delButton.onTouch = function()
   if not delButton.confirm then
     delButton.confirm = true
     notes:refresh("Are you sure you want to delete that?")
@@ -381,21 +369,21 @@ delButton.onPress = function()
     listPopulate()
   end
 end
-runButton.onPress = function()
+runButton.onTouch = function()
   GUI.resetBack()
   mainGUI.disabled = true
   os.execute(fspath..fileList.entries[fileList.selected].text.." \""..(manInput.text[1] or "").."\"")
   mainGUI.disabled = false
   mainGUI:draw()
 end
-editButton.onPress = function()
+editButton.onTouch = function()
   GUI.resetBack()
   mainGUI.disabled = true
   os.execute(EDIT.." \""..fspath..fileList.entries[fileList.selected].text.."\"")
   mainGUI.disabled = false
   mainGUI:draw()
 end
-copyButton.onPress = function()
+copyButton.onTouch = function()
   if not copyButton.pressed then
     copybuffer = fspath..fileList.entries[fileList.selected].text
     notes:refresh("File path copied to buffer")
@@ -410,7 +398,7 @@ copyButton.onPress = function()
     end
   end
 end
-cutButton.onPress = function()
+cutButton.onTouch = function()
   if not cutButton.pressed then
     notes:refresh("File path copied to buffer")
     copybuffer = fspath..fileList.entries[fileList.selected].text
@@ -431,26 +419,11 @@ cutButton.onPress = function()
   end
 end
 
------Event Handler-----
-function touch(name, address, x, y, button, player)
-  mainGUI:press(x, y)
-  newGUI:press(x, y)
-end
-function scroll(name, address, x, y, dir, player)
-  mainGUI:scroll(x, y, dir)
-  newGUI:scroll(x, y, dir)
-end
-function key(name, address, char, code, player)
-  mainGUI:key(char, code, player)
-  newGUI:key(char, code, player)
-end
 
------Run-----
+
+
 listPopulate()
-mainGUI:draw()
-event.listen("touch", touch)
-event.listen("scroll", scroll)
-event.listen("key_down", key)
-while RUNNING do
+prog:start()
+repeat
   os.sleep(0.25)
-end
+until not RUNNING
