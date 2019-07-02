@@ -142,7 +142,6 @@ end
 -----Container Object: Used for the GUI Manager and Windows-----
 
 local container = {}
-container.entries = {}
 container.disabled = false
 
 function container:new(x, y, width, height, back, fore)
@@ -153,6 +152,7 @@ function container:new(x, y, width, height, back, fore)
   obj.height = height or SCREEN_HEIGHT
   obj.back = back or BACKGROUND
   obj.fore = fore or FOREGROUND
+  obj.entries = {}
   self.__index = self
   return obj
 end
@@ -186,18 +186,13 @@ function container:moveToBack(obj)
 end
 
 function container:addEntry(e)
-  if not self.entries then
-    self.entries = {}
-    self.entries[1] = e
-  else
-    self.entries[#self.entries + 1] = e
-  end
+  self.entries[#self.entries + 1] = e
 end
 
-function container:removeEntry(obj)
+function container:removeEntry(e)
   ArrayRemove(self, function(t, i, j)
     local v = t[i]
-    return (v ~= obj) end)
+    return (v ~= e) end)
     return nil
 end
 
@@ -296,7 +291,6 @@ end
 function GUI.newBox(con, x, y, width, height, back)
   local obj = box:new(x + con.x - 1, y + con.y - 1, width, height, back)
   con:addEntry(obj)
-  -- con.entries[#con.entries+1] = obj
   return obj
 end
 
@@ -356,7 +350,6 @@ end
 function GUI.newFrame(con, x, y, width, height, back, fore, text)
   local obj = frame:new(x + con.x - 1, y + con.y - 1, width, height, back, fore, text)
   con:addEntry(obj)
-  -- con.entries[#con.entries+1] = obj
   return obj
 end
 
@@ -424,7 +417,6 @@ end
 function GUI.newLabel(con, x, y, width, back, fore, text, fill, fillFore)
   local obj = label:new(x + con.x - 1, y + con.y - 1, width, back, fore, text, fill, fillFore)
   con:addEntry(obj)
-  -- con.entries[#con.entries+1] = obj
   return obj
 end
 
@@ -472,7 +464,6 @@ end
 function GUI.newVLabel(con, x, y, height, back, fore, text, fill, fillFore)
   local obj = vLabel:new(x + con.x - 1, y + con.y - 1, height, back, fore, text, fill, fillFore)
   con:addEntry(obj)
-  -- con.entries[#con.entries+1] = obj
   return obj
 end
 
@@ -577,7 +568,6 @@ end
 function GUI.newButton(con, x, y, width, height, back, fore, backPressed, forePressed, text)
   local obj = button:new(x, y, width, height, back, fore, backPressed, forePressed, text)
   con:addEntry(obj)
-  -- con.entries[#con.entries+1] = obj
   return obj
 end
 
@@ -653,7 +643,6 @@ end
 function GUI.newRadio(con, x, y, back, fore)
   local obj = radio:new(x, y, back, fore)
   con:addEntry(obj)
-  -- con.entries[#con.entries+1] = obj
   return obj
 end
 
@@ -726,7 +715,6 @@ end
 function GUI.newText(con, x, y, width, height, back, fore, txt)
   local obj = text:new(x + con.x - 1, y + con.y - 1, width, height, back, fore, txt)
   con:addEntry(obj)
-  -- con.entries[#con.entries+1] = obj
   return obj
 end
 
@@ -813,7 +801,6 @@ end
 function GUI.newBar(con, x, y, width, height, inactive, active, current, max, thin, vert)
   local obj = pbar:new(x + con.x - 1, y + con.y - 1, width, height, inactive, active, current, max, thin, vert)
   con:addEntry(obj)
-  -- con.entries[#con.entries+1] = obj
   return obj
 end
 
@@ -1112,7 +1099,6 @@ end
 function GUI.newInput(con, x, y, width, height, back, fore, idleBack, idleFore, cursorBack, placeText, placeColor)
   local obj = input:new(x, y, width, height, back, fore, idleBack, idleFore, cursorBack, placeText, placeColor)
   con:addEntry(obj)
-  -- con.entries[#con.entries+1] = obj
   return obj
 end
 
@@ -1145,7 +1131,6 @@ Public Functions:
   clearEntries       : clears the entries table allowing for more iterating.
 ]]--
 local list = {}
--- list.entries = {}
 list.disabled = false
 list.yOffset = 0
 list.align = "center"
@@ -1177,6 +1162,7 @@ function list:new(x, y, width, height, sep, back, fore, selectBack, selectFore, 
     }
   }
   obj.sep = sep
+  obj.entries = {}
   self.__index = self
   return obj
 end
@@ -1296,13 +1282,7 @@ function list:newEntry(text, func)
   local sub = {}
   sub.text = text
   sub.onPress = func
-  if not self.entries then
-    self.entries = {}
-    self.entries[1] = sub
-  else
-    self.entries[#self.entries + 1] = sub
-  end
-  -- self.entries[#self.entries + 1] = sub
+  self.entries[#self.entries + 1] = sub
 end
 
 function list:clearEntries()
@@ -1315,7 +1295,6 @@ end
 function GUI.newList(con, x, y, width, height, sep, back, fore, selectBack, selectFore, altBack, altFore)
   local obj = list:new(x, y, width, height, sep, back, fore, selectBack, selectFore, altBack, altFore)
   con:addEntry(obj)
-  -- con.entries[#con.entries+1] = obj
   return obj
 end
 
@@ -1419,7 +1398,6 @@ end
 function GUI.newScroll(con, tether, back, fore, backPressed, forePressed)
   local obj = scroll:new(tether, back, fore, backPressed, forePressed)
   con:addEntry(obj)
-  -- con.entries[#con.entries+1] = obj
   return obj
 end
 
@@ -1508,7 +1486,6 @@ Public Functions:
 function GUI.newWindow(con, x, y, width, height, back, fore)
   local obj = container:new(x + con.x - 1, y + con.y - 1, width, height, back, fore)
   con:addEntry(obj)
-  -- con.entries[#con.entries+1] = obj
   return obj
 end
 
