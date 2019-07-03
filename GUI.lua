@@ -163,7 +163,7 @@ function container:draw()
   gpu.fill(self.x, self.y, self.width, self.height, " ")
   if not self.disabled then
     for i = #self.entries, 1, -1 do
-      if self.entries[i].draw and not self.entries[i].disabled then
+      if self.entries[i].draw then -- and not self.entries[i].disabled then
         self.entries[i]:draw()
       end
     end
@@ -174,7 +174,6 @@ function container:moveToFront(obj)
   ArrayRemove(self.entries, function(t, i, j)
     local v = t[i]
     return (v ~= obj) end)
-  -- self:draw()
   self.entries[#self.entries+1] = obj
 end
 
@@ -1265,10 +1264,12 @@ end
 function list:touch(x, y, button, player, con)
   if hitbox(self, x, y, not self.disabled) then
       local id = math.ceil((y - self.y + 1) / (self.sep * 2 + 1))+self.yOffset
-      self.selected = id
-      self.entries[id].onPress(id, player)
-      self:draw()
-      return true
+      if id <= #self.entries then
+        self.selected = id
+        self.entries[id].onPress(id, player)
+        self:draw()
+        return true
+      end
   end
 end
 
@@ -1439,25 +1440,28 @@ local function eventThread(tab)
   end
 end
 
-function GUI.manager(run, back, fore)
+function GUI.manager(back, fore)
   local manager = container:new(1, 1, SCREEN_WIDTH, SCREEN_HEIGHT, back or BACKGROUND, fore or FOREGROUND)
   local t
+  manager.run = true
   function manager:start()
     t = thread.create(eventThread, self)
     self:draw()
   end
   function manager:togglePause()
-    if self.disabled == false then
-      t:suspend()
-      self.disabled = not self.disabled
-    else
-      self.disabled = not self.disabled
-      t:resume()
-      self:draw()
-    end
+    event.timer(1, function()
+      if self.disabled == false then
+        self.disabled = true
+        t:suspend()
+      else
+        self.disabled = false
+        t:resume()
+      end
+    end)
   end
   function manager:stop()
-    run = false
+    self.run = false
+    self.disabled = true
     t:kill()
     GUI.resetBack()
   end

@@ -8,26 +8,22 @@ local PROG_NAME = "/tank/crawl"
 local EDIT = "shedit" -- Edit program used
 local fspath = "//home/" -- Default file path
 local copybuffer = "" -- File Path for copying
-local RUNNING = true
+-- local RUNNING = true
 
-local prog = GUI.manager(RUNNING)
+local prog = GUI.manager()
 prog.back = 0xcccccc
-
 
 local function close()
   prog:stop()
   term.setCursor(1, 1)
+  -- RUNNING = false
   os.exit()
 end
 
 -----Main Window-----
-
--- local mainGUI = GUI.newWindow(prog, 1, 1, prog.width, prog.height, 0xcccccc)
-
+local exit = GUI.newButton(prog, 80, 1, 1, 1, 0xff3333, 0xff3333, 0xffffff, 0xffffff, " ")
 local title = GUI.newLabel(prog, 1, 1, prog.width, 0x333399, 0xffffff, PROG_NAME.." v:"..VER)
 title.align = "left"
-local exit = GUI.newButton(prog, 80, 1, 0, 0, 0xff3333, 0xff3333, 0xffffff, 0xffffff, " ")
-exit.onTouch = close
 
 GUI.newLabel(prog, 3, 3, 17, prog.back, 0x000000, "[Folder Path]", "-", 0x000000)
 local dirList = GUI.newList(prog, 3, 4, 16, 19, 0, 0x333399, 0xffffff, 0x9933cc, 0xffffff)
@@ -66,7 +62,6 @@ cutButton.switch = true
 cutButton.disabled = true
 
 -----New File Window-----
-
 local newGUI = GUI.newWindow(prog, 21, 3, 42, 20, 0xcccccc, 0x000000)
 newGUI.disabled = true
 
@@ -268,11 +263,16 @@ local function listPopulate()
 end
 
 -----Pressable Init-----
+function exit:onTouch()
+  close()
+end
+
 function newButton:onTouch()
   fileList.disabled = true
   dirList.disabled = true
   newGUI.disabled = false
   folderInput.text[1] = fspath
+  nameInput.text = {}
   prog:moveToFront(newGUI)
   newGUI:draw()
 end
@@ -372,12 +372,14 @@ function runButton:onTouch()
   prog.togglePause()
   os.execute(fspath..fileList.entries[fileList.selected].text.." \""..(manInput.text[1] or "").."\"")
   prog.togglePause()
+  prog:draw()
 end
 function editButton:onTouch()
   GUI.resetBack()
   prog.togglePause()
   os.execute(EDIT.." \""..fspath..fileList.entries[fileList.selected].text.."\"")
   prog.togglePause()
+  prog:draw()
 end
 function copyButton:onTouch()
   if not copyButton.pressed then
@@ -420,4 +422,4 @@ listPopulate()
 prog:start()
 repeat
   os.sleep(0.25)
-until not RUNNING
+until not prog.run
