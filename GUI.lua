@@ -870,7 +870,6 @@ end
 
 local input = {}
 input.disabled = false
-input.text = {}
 input.xOffset = 0
 input.yOffset = 0
 input.focus = false
@@ -904,6 +903,7 @@ function input:new(x, y, width, height, back, fore, idleBack, idleFore, cursorBa
     x = obj.x,
     y = obj.y,
   }
+  obj.text = {}
   self.__index = self
   return obj
 end

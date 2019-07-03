@@ -8,7 +8,6 @@ local PROG_NAME = "/tank/crawl"
 local EDIT = "shedit" -- Edit program used
 local fspath = "//home/" -- Default file path
 local copybuffer = "" -- File Path for copying
--- local RUNNING = true
 
 local prog = GUI.manager()
 prog.back = 0xcccccc
@@ -16,7 +15,6 @@ prog.back = 0xcccccc
 local function close()
   prog:stop()
   term.setCursor(1, 1)
-  -- RUNNING = false
   os.exit()
 end
 
@@ -272,7 +270,6 @@ function newButton:onTouch()
   dirList.disabled = true
   newGUI.disabled = false
   folderInput.text[1] = fspath
-  nameInput.text = {}
   prog:moveToFront(newGUI)
   newGUI:draw()
 end
