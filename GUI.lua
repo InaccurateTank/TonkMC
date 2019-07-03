@@ -174,7 +174,7 @@ function container:moveToFront(obj)
   ArrayRemove(self.entries, function(t, i, j)
     local v = t[i]
     return (v ~= obj) end)
-  self:draw()
+  -- self:draw()
   self.entries[#self.entries+1] = obj
 end
 
@@ -202,7 +202,8 @@ end
 function container:touch(x, y, button, player, con)
   if hitbox(self, x, y, not self.disabled) then
     if con ~= nil and con.entries[#con.entries] ~= self then
-      con.moveToFront(self)
+      con:moveToFront(self)
+      con:draw()
     end
     for i = #self.entries, 1, -1 do
       if self.entries[i].touch then
@@ -228,7 +229,8 @@ end
 function container:scroll(x, y, dir, player, con)
   if hitbox(self, x, y, not self.disabled) then
     if con ~= nil and con.entries[#con.entries] ~= self then
-      con.moveToFront(self)
+      con:moveToFront(self)
+      con:draw()
     end
     for i = #self.entries, 1, -1 do
       if self.entries[i].scroll then
@@ -566,7 +568,7 @@ function button:onTouch()
 end
 
 function GUI.newButton(con, x, y, width, height, back, fore, backPressed, forePressed, text)
-  local obj = button:new(x, y, width, height, back, fore, backPressed, forePressed, text)
+  local obj = button:new(x + con.x - 1, y + con.y - 1, width, height, back, fore, backPressed, forePressed, text)
   con:addEntry(obj)
   return obj
 end
@@ -641,7 +643,7 @@ function radio:onActive()
 end
 
 function GUI.newRadio(con, x, y, back, fore)
-  local obj = radio:new(x, y, back, fore)
+  local obj = radio:new(x + con.x - 1, y + con.y - 1, back, fore)
   con:addEntry(obj)
   return obj
 end
@@ -1097,7 +1099,7 @@ function input:scrollCheck()
 end
 
 function GUI.newInput(con, x, y, width, height, back, fore, idleBack, idleFore, cursorBack, placeText, placeColor)
-  local obj = input:new(x, y, width, height, back, fore, idleBack, idleFore, cursorBack, placeText, placeColor)
+  local obj = input:new(x + con.x - 1, y + con.y - 1, width, height, back, fore, idleBack, idleFore, cursorBack, placeText, placeColor)
   con:addEntry(obj)
   return obj
 end
@@ -1293,7 +1295,7 @@ function list:clearEntries()
 end
 
 function GUI.newList(con, x, y, width, height, sep, back, fore, selectBack, selectFore, altBack, altFore)
-  local obj = list:new(x, y, width, height, sep, back, fore, selectBack, selectFore, altBack, altFore)
+  local obj = list:new(x + con.x - 1, y + con.y - 1, width, height, sep, back, fore, selectBack, selectFore, altBack, altFore)
   con:addEntry(obj)
   return obj
 end

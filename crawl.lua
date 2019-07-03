@@ -1,4 +1,4 @@
--- local event = require("event")
+local event = require("event")
 local GUI = require("GUI")
 local fs = require("filesystem")
 local term = require("term")
@@ -11,6 +11,7 @@ local copybuffer = "" -- File Path for copying
 local RUNNING = true
 
 local prog = GUI.manager(RUNNING)
+prog.back = 0xcccccc
 
 
 local function close()
@@ -21,46 +22,46 @@ end
 
 -----Main Window-----
 
-local mainGUI = GUI.newWindow(prog, 1, 1, prog.width, prog.height, 0xcccccc)
+-- local mainGUI = GUI.newWindow(prog, 1, 1, prog.width, prog.height, 0xcccccc)
 
-local title = GUI.newLabel(mainGUI, 1, 1, mainGUI.width, 0x333399, 0xffffff, PROG_NAME.." v:"..VER)
+local title = GUI.newLabel(prog, 1, 1, prog.width, 0x333399, 0xffffff, PROG_NAME.." v:"..VER)
 title.align = "left"
-local exit = GUI.newButton(mainGUI, 80, 1, 0, 0, 0xff3333, 0xff3333, 0xffffff, 0xffffff, " ")
+local exit = GUI.newButton(prog, 80, 1, 0, 0, 0xff3333, 0xff3333, 0xffffff, 0xffffff, " ")
 exit.onTouch = close
 
-GUI.newLabel(mainGUI, 3, 3, 17, mainGUI.back, 0x000000, "[Folder Path]", "-", 0x000000)
-local dirList = GUI.newList(mainGUI, 3, 4, 16, 19, 0, 0x333399, 0xffffff, 0x9933cc, 0xffffff)
+GUI.newLabel(prog, 3, 3, 17, prog.back, 0x000000, "[Folder Path]", "-", 0x000000)
+local dirList = GUI.newList(prog, 3, 4, 16, 19, 0, 0x333399, 0xffffff, 0x9933cc, 0xffffff)
 dirList.align = "left"
-local dirScroll = GUI.newScroll(mainGUI, dirList, 0x333399, 0xffffff, 0x5599ff, 0xffffff)
+local dirScroll = GUI.newScroll(prog, dirList, 0x333399, 0xffffff, 0x5599ff, 0xffffff)
 
-GUI.newLabel(mainGUI, 64, 3, 15, mainGUI.back, 0x000000, "[Type]", "-", 0x000000)
-local typeLabel = GUI.newLabel(mainGUI, 64, 4, 15, mainGUI.back, 0x000000, "")
+GUI.newLabel(prog, 64, 3, 15, prog.back, 0x000000, "[Type]", "-", 0x000000)
+local typeLabel = GUI.newLabel(prog, 64, 4, 15, prog.back, 0x000000, "")
 typeLabel.align = "left"
-GUI.newLabel(mainGUI, 64, 6, 15, mainGUI.back, 0x000000, "[Last Mod]", "-", 0x000000)
-local modLabel = GUI.newLabel(mainGUI, 64, 7, 15, mainGUI.back, 0x000000, "")
+GUI.newLabel(prog, 64, 6, 15, prog.back, 0x000000, "[Last Mod]", "-", 0x000000)
+local modLabel = GUI.newLabel(prog, 64, 7, 15, prog.back, 0x000000, "")
 modLabel.align = "left"
-GUI.newLabel(mainGUI, 64, 9, 15, mainGUI.back, 0x000000, "[Notifications]", "-", 0x000000)
-local notes = GUI.newText(mainGUI, 64, 10, 15, 6, 0x333399, 0xffffff, "")
+GUI.newLabel(prog, 64, 9, 15, prog.back, 0x000000, "[Notifications]", "-", 0x000000)
+local notes = GUI.newText(prog, 64, 10, 15, 6, 0x333399, 0xffffff, "")
 
-local fileList = GUI.newList(mainGUI, 21, 3, 41, 20, 0, 0x333399, 0xffffff, 0x9933cc, 0xffffff)
+local fileList = GUI.newList(prog, 21, 3, 41, 20, 0, 0x333399, 0xffffff, 0x9933cc, 0xffffff)
 fileList.align = "left"
-local fileScroll = GUI.newScroll(mainGUI, fileList, 0x333399, 0xffffff, 0x5599ff, 0xffffff)
+local fileScroll = GUI.newScroll(prog, fileList, 0x333399, 0xffffff, 0x5599ff, 0xffffff)
 
-local manInput = GUI.newInput(mainGUI, 3, 24, 76, 1, 0x333399, 0xffffff, 0x9933cc, 0xffffff, 0x9933cc, "Manual Commands Here", 0xffffff)
+local manInput = GUI.newInput(prog, 3, 24, 76, 1, 0x333399, 0xffffff, 0x9933cc, 0xffffff, 0x9933cc, "Manual Commands Here", 0xffffff)
 manInput.onReturn = function()
 end
 
-local newButton = GUI.newButton(mainGUI, 64, 17, 4, 0, 0x333399, 0xffffff, 0xffffff, 0x000000, "(N)ew: ")
-local delButton = GUI.newButton(mainGUI, 64, 18, 3, 0, 0x333399, 0xffffff, 0xffffff, 0x000000, "(Del)ete:")
+local newButton = GUI.newButton(prog, 64, 17, 15, 1, 0x333399, 0xffffff, 0xffffff, 0x000000, "(N)ew: ")
+local delButton = GUI.newButton(prog, 64, 18, 15, 1, 0x333399, 0xffffff, 0xffffff, 0x000000, "(Del)ete:")
 delButton.confirm = false
-local runButton = GUI.newButton(mainGUI, 64, 19, 4, 0, 0x333399, 0xffffff, 0xffffff, 0x000000, "(R)un: ")
+local runButton = GUI.newButton(prog, 64, 19, 15, 1, 0x333399, 0xffffff, 0xffffff, 0x000000, "(R)un: ")
 runButton.disabled = true
-local editButton = GUI.newButton(mainGUI, 64, 20, 4, 0, 0x333399, 0xffffff, 0xffffff, 0x000000, "(E)dit:")
+local editButton = GUI.newButton(prog, 64, 20, 15, 1, 0x333399, 0xffffff, 0xffffff, 0x000000, "(E)dit:")
 editButton.disabled = true
-local copyButton = GUI.newButton(mainGUI, 64, 21, 5, 0, 0x333399, 0xffffff, 0xffffff, 0x000000, "Copy:")
+local copyButton = GUI.newButton(prog, 64, 21, 15, 1, 0x333399, 0xffffff, 0xffffff, 0x000000, "Copy:")
 copyButton.switch = true
 copyButton.disabled = true
-local cutButton = GUI.newButton(mainGUI, 64, 22, 5, 0, 0x333399, 0xffffff, 0xffffff, 0x000000, "Cut: ")
+local cutButton = GUI.newButton(prog, 64, 22, 15, 1, 0x333399, 0xffffff, 0xffffff, 0x000000, "Cut: ")
 cutButton.switch = true
 cutButton.disabled = true
 
@@ -74,17 +75,17 @@ GUI.newLabel(newGUI, 2, 3, 1, newGUI.back, 0x000000, "Path:")
 GUI.newLabel(newGUI, 2, 5, 1, newGUI.back, 0x000000, "Name:")
 local folderInput = GUI.newInput(newGUI, 7, 3, 35, 1, 0x333399, 0xffffff, 0x9933cc, 0xffffff, 0x9933cc)
 local nameInput = GUI.newInput(newGUI, 7, 5, 35, 1, 0x333399, 0xffffff, 0x9933cc, 0xffffff, 0x9933cc)
-folderInput.onReturn = function()
+function folderInput:onReturn()
   folderInput.focus = false
   nameInput.focus = true
   folderInput:draw()
   nameInput:draw()
 end
-nameInput.onReturn = function()
+function nameInput:onReturn()
   nameInput.focus = false
   nameInput:draw()
 end
-GUI.newLabel(newGUI, 1, 7, newGUI.width, mainGUI.background, 0x000000, "[Type (1-4)]", "-", 0x000000)
+GUI.newLabel(newGUI, 1, 7, newGUI.width, prog.back, 0x000000, "[Type (1-4)]", "-", 0x000000)
 GUI.newLabel(newGUI, 2, 9, 1, newGUI.back, 0x000000, "Folder:")
 local folderRadio = GUI.newRadio(newGUI, 10, 9, newGUI.back, 0x000000)
 GUI.newLabel(newGUI, 2, 11, 1, newGUI.back, 0x000000, ".txt:")
@@ -93,8 +94,8 @@ GUI.newLabel(newGUI, 2, 13, 1, newGUI.back, 0x000000, ".lua:")
 local luaRadio = GUI.newRadio(newGUI, 10, 13, newGUI.back, 0x000000)
 GUI.newLabel(newGUI, 2, 15, 1, newGUI.back, 0x000000, "None:")
 local naRadio = GUI.newRadio(newGUI, 10, 15, newGUI.back, 0x000000)
-local confirmButton = GUI.newButton(newGUI, 2, 19, 1, 0, 0x333399, 0xffffff, 0xffffff, 0x000000, "Confirm:")
-local cancelButton = GUI.newButton(newGUI, 31, 19, 1, 0, 0x333399, 0xffffff, 0xffffff, 0x000000, "(C)ancel:")
+local confirmButton = GUI.newButton(newGUI, 2, 19, 10, 1, 0x333399, 0xffffff, 0xffffff, 0x000000, "Confirm:")
+local cancelButton = GUI.newButton(newGUI, 31, 19, 11, 1, 0x333399, 0xffffff, 0xffffff, 0x000000, "(C)ancel:")
 
 -----Program Functions-----
 local function treeUpdate(path) -- returns two tables, one of the file path and another of the folder contents.
@@ -267,11 +268,12 @@ local function listPopulate()
 end
 
 -----Pressable Init-----
-newButton.onTouch = function()
+function newButton:onTouch()
   fileList.disabled = true
   dirList.disabled = true
   newGUI.disabled = false
   folderInput.text[1] = fspath
+  prog:moveToFront(newGUI)
   newGUI:draw()
 end
 cancelButton.onTouch = function()
@@ -367,17 +369,15 @@ delButton.onTouch = function()
 end
 runButton.onTouch = function()
   GUI.resetBack()
-  mainGUI.disabled = true
+  prog.togglePause()
   os.execute(fspath..fileList.entries[fileList.selected].text.." \""..(manInput.text[1] or "").."\"")
-  mainGUI.disabled = false
-  mainGUI:draw()
+  prog.togglePause()
 end
 editButton.onTouch = function()
   GUI.resetBack()
-  mainGUI.disabled = true
+  prog.togglePause()
   os.execute(EDIT.." \""..fspath..fileList.entries[fileList.selected].text.."\"")
-  mainGUI.disabled = false
-  mainGUI:draw()
+  prog.togglePause()
 end
 copyButton.onTouch = function()
   if not copyButton.pressed then
