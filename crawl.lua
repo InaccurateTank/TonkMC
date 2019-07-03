@@ -276,7 +276,7 @@ function newButton:onTouch()
   prog:moveToFront(newGUI)
   newGUI:draw()
 end
-cancelButton.onTouch = function()
+function cancelButton:onTouch()
   folderInput.text = {}
   nameInput.text = {}
   folderRadio.active = false
@@ -291,7 +291,7 @@ cancelButton.onTouch = function()
 end
 
 
-folderRadio.onActive = function()
+function folderRadio:onActive()
   txtRadio.active = false
   luaRadio.active = false
   naRadio.active = false
@@ -299,7 +299,7 @@ folderRadio.onActive = function()
   luaRadio:draw()
   naRadio:draw()
 end
-txtRadio.onActive = function()
+function txtRadio:onActive()
   folderRadio.active = false
   luaRadio.active = false
   naRadio.active = false
@@ -307,7 +307,7 @@ txtRadio.onActive = function()
   luaRadio:draw()
   naRadio:draw()
 end
-luaRadio.onActive = function()
+function luaRadio:onActive()
   txtRadio.active = false
   folderRadio.active = false
   naRadio.active = false
@@ -315,7 +315,7 @@ luaRadio.onActive = function()
   folderRadio:draw()
   naRadio:draw()
 end
-naRadio.onActive = function()
+function naRadio:onActive()
   txtRadio.active = false
   luaRadio.active = false
   folderRadio.active = false
@@ -324,7 +324,7 @@ naRadio.onActive = function()
   folderRadio:draw()
 end
 
-confirmButton.onTouch = function()
+function confirmButton:onTouch()
   if folderRadio.active then
     if fs.exists(folderInput.text[1]..nameInput.text[1]) then
       notes:refresh("Folder Already Exists")
@@ -352,7 +352,7 @@ confirmButton.onTouch = function()
   newGUI.disabled = true
   listPopulate()
 end
-delButton.onTouch = function()
+function delButton:onTouch()
   if not delButton.confirm then
     delButton.confirm = true
     notes:refresh("Are you sure you want to delete that?")
@@ -367,19 +367,19 @@ delButton.onTouch = function()
     listPopulate()
   end
 end
-runButton.onTouch = function()
+function runButton:onTouch()
   GUI.resetBack()
   prog.togglePause()
   os.execute(fspath..fileList.entries[fileList.selected].text.." \""..(manInput.text[1] or "").."\"")
   prog.togglePause()
 end
-editButton.onTouch = function()
+function editButton:onTouch()
   GUI.resetBack()
   prog.togglePause()
   os.execute(EDIT.." \""..fspath..fileList.entries[fileList.selected].text.."\"")
   prog.togglePause()
 end
-copyButton.onTouch = function()
+function copyButton:onTouch()
   if not copyButton.pressed then
     copybuffer = fspath..fileList.entries[fileList.selected].text
     notes:refresh("File path copied to buffer")
@@ -394,7 +394,7 @@ copyButton.onTouch = function()
     end
   end
 end
-cutButton.onTouch = function()
+function cutButton:onTouch()
   if not cutButton.pressed then
     notes:refresh("File path copied to buffer")
     copybuffer = fspath..fileList.entries[fileList.selected].text
