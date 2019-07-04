@@ -254,13 +254,15 @@ local function listPopulate()
       end
     end)
   end
+  fileList.selected = 1
+  fileList.entries[1].onPress(1)
   fileList:draw()
   fileScroll:draw()
   dirList:draw()
   dirScroll:draw()
 end
 
------Pressable Init-----
+-----Button Init-----
 function exit:onTouch()
   close()
 end
@@ -411,6 +413,28 @@ function cutButton:onTouch()
       cutButton.disabled = true
       cutButton:draw()
     end
+  end
+end
+
+-----Container Events-----
+function prog:customKeys(char, code, player)
+  if manInput.focus == false and newGUI.disabled == true then
+    if code == 200 then -- Up
+      if fileList.selected > 1 then
+        fileList.selected = fileList.selected - 1
+        fileList.entries[fileList.selected].onPress(fileList.selected)
+        fileList:draw()
+      end
+    elseif code == 208 then -- Down
+      if fileList.selected < #fileList.entries then
+        fileList.selected = fileList.selected + 1
+        fileList.entries[fileList.selected].onPress(fileList.selected)
+        fileList:draw()
+      end
+    elseif char == 13 then -- Enter
+    end
+  else
+    return false
   end
 end
 
