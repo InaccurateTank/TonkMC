@@ -842,7 +842,7 @@ end
 
 local function lineShift(tab, line, letter, dir)
   local result = {}
-  if dir == -1 then -- Enter
+  if dir == -1 then -- Down
     local i = 1
     repeat
       if i ~= line then
@@ -853,7 +853,7 @@ local function lineShift(tab, line, letter, dir)
       end
       i = i + 1
     until(i > #tab)
-  elseif dir == 1 then -- Delete
+  elseif dir == 1 then -- Up
     local i = 1
     repeat
       if i ~= line - 1 then

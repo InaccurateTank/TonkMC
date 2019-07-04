@@ -272,6 +272,9 @@ function newButton:onTouch()
   dirList.disabled = true
   newGUI.disabled = false
   folderInput.text[1] = fspath
+  newGUI:moveToFront(folderInput)
+  folderInput.focus = true
+  folderInput.cursor.x = #folderInput.text[1] + folderInput.x
   prog:moveToFront(newGUI)
   newGUI:draw()
 end
@@ -432,10 +435,29 @@ function prog:customKeys(char, code, player)
         fileList:draw()
       end
     elseif char == 13 then -- Enter
+      prog:moveToFront(manInput)
+      manInput.focus = true
     end
+    -- Right code 205
+    -- Left code 203
+    -- N char 110
+    -- Del code 14 or 39
+    -- R char 114
+    -- E char 101
+    -- Ctrl
+    --   V char 22
+    --   C char 3
+    -- Esc
   else
     return false
   end
+end
+
+function newGUI:customKeys(char, code, player)
+  -- if other stuff isnt selected
+  -- Nums 1-4 chars 49-52
+  -- Enter char 13
+  -- C char 99
 end
 
 
