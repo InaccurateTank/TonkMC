@@ -1,3 +1,12 @@
+--[[
+/tank/crawl Ver:2.0
+Written by Tankman
+Contains ants
+
+Changelog:
+  Initial release with GUI 2.0
+]]
+
 local event = require("event")
 local GUI = require("GUI")
 local fs = require("filesystem")
