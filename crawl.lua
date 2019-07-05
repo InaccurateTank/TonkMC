@@ -12,7 +12,7 @@ local GUI = require("GUI")
 local fs = require("filesystem")
 local term = require("term")
 
-local VER = 0.5
+local VER = 2.0
 local PROG_NAME = "/tank/crawl"
 local EDIT = "shedit" -- Edit program used
 local fspath = "//home/" -- Default file path
