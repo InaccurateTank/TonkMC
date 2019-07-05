@@ -8,6 +8,7 @@ local PROG_NAME = "/tank/crawl"
 local EDIT = "shedit" -- Edit program used
 local fspath = "//home/" -- Default file path
 local copybuffer = "" -- File Path for copying
+local delconf = false
 
 local prog = GUI.manager()
 prog.back = 0xcccccc
@@ -47,7 +48,6 @@ end
 
 local newButton = GUI.newButton(prog, 64, 17, 15, 1, 0x333399, 0xffffff, 0xffffff, 0x000000, "(N)ew: ")
 local delButton = GUI.newButton(prog, 64, 18, 15, 1, 0x333399, 0xffffff, 0xffffff, 0x000000, "(Del)ete:")
-delButton.confirm = false
 local runButton = GUI.newButton(prog, 64, 19, 15, 1, 0x333399, 0xffffff, 0xffffff, 0x000000, "(R)un: ")
 runButton.disabled = true
 local editButton = GUI.newButton(prog, 64, 20, 15, 1, 0x333399, 0xffffff, 0xffffff, 0x000000, "(E)dit:")
@@ -262,12 +262,49 @@ local function listPopulate()
   dirScroll:draw()
 end
 
------Button Init-----
-function exit:onTouch()
-  close()
+-----Common Functions-----
+local function delete()
+  if not delconf then
+    delconf = true
+    notes:refresh("Are you sure you want to delete that?")
+    event.timer(2, function()
+      delconf = false
+      notes:refresh("")
+    end)
+  else
+    delconf = false
+    notes:refresh("")
+    fs.remove(fspath..fileList.entries[fileList.selected].text)
+    listPopulate()
+  end
 end
 
-function newButton:onTouch()
+local function run()
+  GUI.resetBack()
+  prog.togglePause()
+  os.execute(fspath..fileList.entries[fileList.selected].text.." \""..(manInput.text[1] or "").."\"")
+  prog.togglePause()
+  prog:draw()
+end
+
+local function edit()
+  GUI.resetBack()
+  prog.togglePause()
+  os.execute(EDIT.." \""..fspath..fileList.entries[fileList.selected].text.."\"")
+  prog.togglePause()
+  prog:draw()
+end
+
+-- local function copy()
+-- end
+
+-- local function cut()
+-- end
+
+local function paste()
+end
+
+local function new()
   fileList.disabled = true
   dirList.disabled = true
   newGUI.disabled = false
@@ -278,7 +315,24 @@ function newButton:onTouch()
   prog:moveToFront(newGUI)
   newGUI:draw()
 end
-function cancelButton:onTouch()
+
+local function confirm()
+  if folderRadio.active then
+    if fs.exists(folderInput.text[1]..nameInput.text[1]) then
+      notes:refresh("Folder Already Exists")
+    else
+      fs.makeDirectory(folderInput.text[1]..nameInput.text[1].."/")
+    end
+  elseif txtRadio.active then
+    local _ = fs.open(folderInput.text[1]..appendName(nameInput.text[1])..".txt", "w")
+    _:close()
+  elseif luaRadio.active then
+    local _ = fs.open(folderInput.text[1]..appendName(nameInput.text[1])..".lua", "w")
+    _:close()
+  elseif naRadio.active then
+    local _ = fs.open(folderInput.text[1]..appendName(nameInput.text[1]), "w")
+    _:close()
+  end
   folderInput.text = {}
   nameInput.text = {}
   folderRadio.active = false
@@ -288,10 +342,17 @@ function cancelButton:onTouch()
   fileList.disabled = false
   dirList.disabled = false
   newGUI.disabled = true
-  fileList:draw()
-  fileScroll:draw()
+  listPopulate()
 end
 
+-----Button Init-----
+function exit:onTouch()
+  close()
+end
+
+function newButton:onTouch()
+  new()
+end
 
 function folderRadio:onActive()
   txtRadio.active = false
@@ -326,23 +387,7 @@ function naRadio:onActive()
   folderRadio:draw()
 end
 
-function confirmButton:onTouch()
-  if folderRadio.active then
-    if fs.exists(folderInput.text[1]..nameInput.text[1]) then
-      notes:refresh("Folder Already Exists")
-    else
-      fs.makeDirectory(folderInput.text[1]..nameInput.text[1].."/")
-    end
-  elseif txtRadio.active then
-    local _ = fs.open(folderInput.text[1]..appendName(nameInput.text[1])..".txt", "w")
-    _:close()
-  elseif luaRadio.active then
-    local _ = fs.open(folderInput.text[1]..appendName(nameInput.text[1])..".lua", "w")
-    _:close()
-  elseif naRadio.active then
-    local _ = fs.open(folderInput.text[1]..appendName(nameInput.text[1]), "w")
-    _:close()
-  end
+function cancelButton:onTouch()
   folderInput.text = {}
   nameInput.text = {}
   folderRadio.active = false
@@ -352,36 +397,20 @@ function confirmButton:onTouch()
   fileList.disabled = false
   dirList.disabled = false
   newGUI.disabled = true
-  listPopulate()
+  fileList:draw()
+  fileScroll:draw()
+end
+function confirmButton:onTouch()
+  confirm()
 end
 function delButton:onTouch()
-  if not delButton.confirm then
-    delButton.confirm = true
-    notes:refresh("Are you sure you want to delete that?")
-    event.timer(2, function()
-      delButton.confirm = false
-      notes:refresh("")
-    end)
-  else
-    delButton.confirm = false
-    notes:refresh("")
-    fs.remove(fspath..fileList.entries[fileList.selected].text)
-    listPopulate()
-  end
+  delete()
 end
 function runButton:onTouch()
-  GUI.resetBack()
-  prog.togglePause()
-  os.execute(fspath..fileList.entries[fileList.selected].text.." \""..(manInput.text[1] or "").."\"")
-  prog.togglePause()
-  prog:draw()
+  run()
 end
 function editButton:onTouch()
-  GUI.resetBack()
-  prog.togglePause()
-  os.execute(EDIT.." \""..fspath..fileList.entries[fileList.selected].text.."\"")
-  prog.togglePause()
-  prog:draw()
+  edit()
 end
 function copyButton:onTouch()
   if not copyButton.pressed then
@@ -434,30 +463,63 @@ function prog:customKeys(char, code, player)
         fileList.entries[fileList.selected].onPress(fileList.selected)
         fileList:draw()
       end
+    elseif code == 205 then -- Right
+      if fs.isDirectory(fspath..fileList.entries[fileList.selected].text)then
+        fspath = treeUp(fspath, fileList.entries[fileList.selected].text)
+        typeLabel.text = "Folder"
+        notes:refresh("")
+        listPopulate()
+      else
+        notes:refresh("Not a folder.")
+      end
+    elseif code == 203 then -- Left
+      if fspath ~= "//" then
+        fspath = treeDown(fspath)
+        typeLabel.text = "Folder"
+        notes:refresh("")
+        listPopulate()
+      end
     elseif char == 13 then -- Enter
       prog:moveToFront(manInput)
       manInput.focus = true
+    elseif code == 14 or code == 211 then -- Del
+      delete()
+    elseif char == 14 then -- Ctrl-N
+      new()
+    elseif char == 114 then -- R
+      run()
+    elseif char == 101 then -- E
+      edit()
+    elseif char == 3 then -- Ctrl-C
+      copyButton:touch(copyButton.x, copyButton.y)
+    elseif char == 24 then -- Ctrl-X
+      cutButton:touch(cutButton.x, cutButton.y)
+    elseif char == 22 then -- Ctrl-V
+      
     end
-    -- Right code 205
-    -- Left code 203
-    -- N char 110
-    -- Del code 14 or 39
-    -- R char 114
-    -- E char 101
-    -- Ctrl
-    --   V char 22
-    --   C char 3
-    -- Esc
   else
     return false
   end
 end
 
 function newGUI:customKeys(char, code, player)
-  -- if other stuff isnt selected
-  -- Nums 1-4 chars 49-52
-  -- Enter char 13
-  -- C char 99
+  if newGUI.disabled == false and folderInput.focus == false and nameInput.focus == false then
+    if char == 49 then -- 1 Folder
+      folderRadio:touch(folderRadio.x, folderRadio.y)
+    elseif char == 50 then -- 2 .txt
+      txtRadio:touch(txtRadio.x, txtRadio.y)
+    elseif char == 51 then -- 3 .lua
+      luaRadio:touch(luaRadio.x, luaRadio.y)
+    elseif char == 52 then -- 4 none
+      naRadio:touch(naRadio.x, naRadio.y)
+    elseif char == 13 then -- Enter
+      confirm()
+    elseif char == 99 then -- C
+      cancelButton:onTouch()
+    else
+      return false
+    end
+  end
 end
 
 
