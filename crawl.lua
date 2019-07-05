@@ -7,17 +7,11 @@ local VER = 0.5
 local PROG_NAME = "/tank/crawl"
 local EDIT = "shedit" -- Edit program used
 local fspath = "//home/" -- Default file path
-local copybuffer = "" -- File Path for copying
-local delconf = false
 
+local copybuffer = {} -- [1] 1 is copy, 2 is paste.  [2] File Path for copying.
+local delconf = false -- Confirmation for deleting files
 local prog = GUI.manager()
 prog.back = 0xcccccc
-
-local function close()
-  prog:stop()
-  term.setCursor(1, 1)
-  os.exit()
-end
 
 -----Main Window-----
 local exit = GUI.newButton(prog, 80, 1, 1, 1, 0xff3333, 0xff3333, 0xffffff, 0xffffff, " ")
@@ -262,7 +256,13 @@ local function listPopulate()
   dirScroll:draw()
 end
 
------Common Functions-----
+-----Common Commands-----
+local function close()
+  prog:stop()
+  term.setCursor(1, 1)
+  os.exit()
+end
+
 local function delete()
   if not delconf then
     delconf = true
@@ -295,14 +295,51 @@ local function edit()
   prog:draw()
 end
 
--- local function copy()
--- end
+local function copy()
+  if not copybuffer[1] then
+    copybuffer[1] = 1
+    copybuffer[2] = fspath..fileList.entries[fileList.selected].text
+    notes:refresh("File path copied to buffer")
+  end
+end
 
--- local function cut()
--- end
+local function cut()
+  if not copybuffer[1] then
+    copybuffer[1] = 2
+    copybuffer[2] = fspath..fileList.entries[fileList.selected].text
+    notes:refresh("File path copied to buffer")
+  end
+end
 
--- local function paste()
--- end
+local function paste()
+  if copybuffer[1] == 1 then
+    fs.copy(copybuffer[2], appendName(fspath..copybuffer[2]:match("([^/]-)$")))
+    notes:refresh("File pasted")
+    listPopulate()
+    copybuffer = {}
+    if editButton.disabled then
+      copyButton.disabled = true
+      copyButton:draw()
+    end
+  elseif copybuffer[1] == 2 then
+    if fs.exists(fspath..copybuffer[2]:match("([^/]-)$")) then
+      notes:refresh("Filename already taken at location")
+      if cutButton.pressed == false then
+        cutButton.pressed = true
+      end
+    else
+      fs.copy(copybuffer[2], appendName(fspath..copybuffer[2]:match("([^/]-)$")))
+      fs.remove(copybuffer[2])
+      notes:refresh("File pasted")
+      listPopulate()
+      copybuffer = {}
+      if editButton.disabled then
+        cutButton.disabled = true
+        cutButton:draw()
+      end
+    end
+  end
+end
 
 local function new()
   fileList.disabled = true
@@ -413,38 +450,25 @@ function editButton:onTouch()
   edit()
 end
 function copyButton:onTouch()
-  if not copyButton.pressed then
-    copybuffer = fspath..fileList.entries[fileList.selected].text
-    notes:refresh("File path copied to buffer")
+  if copybuffer[1] ~= 1 then
+    copy()
   else
-    fs.copy(copybuffer, appendName(fspath..copybuffer:match("([^/]-)$")))
-    notes:refresh("File pasted")
-    listPopulate()
-    copybuffer = ""
-    if editButton.disabled then
-      copyButton.disabled = true
-      copyButton:draw()
-    end
+    paste()
+  end
+  if cutButton.pressed then
+    cutButton.pressed = false
+    cutButton:draw()
   end
 end
 function cutButton:onTouch()
-  if not cutButton.pressed then
-    notes:refresh("File path copied to buffer")
-    copybuffer = fspath..fileList.entries[fileList.selected].text
+  if copybuffer[1] ~= 2 then
+    cut()
   else
-    if fs.exists(fspath..copybuffer:match("([^/]-)$")) then
-      notes:refresh("Filename already taken at location")
-    else
-      fs.copy(copybuffer, appendName(fspath..copybuffer:match("([^/]-)$")))
-      fs.remove(copybuffer)
-      notes:refresh("File pasted")
-      listPopulate()
-      copybuffer = ""
-    end
-    if editButton.disabled then
-      cutButton.disabled = true
-      cutButton:draw()
-    end
+    paste()
+  end
+  if copyButton.pressed then
+    copyButton.pressed = false
+    copyButton:draw()
   end
 end
 
@@ -467,7 +491,6 @@ function prog:customKeys(char, code, player)
       if fs.isDirectory(fspath..fileList.entries[fileList.selected].text)then
         fspath = treeUp(fspath, fileList.entries[fileList.selected].text)
         typeLabel.text = "Folder"
-        notes:refresh("")
         listPopulate()
       else
         notes:refresh("Not a folder.")
@@ -476,7 +499,6 @@ function prog:customKeys(char, code, player)
       if fspath ~= "//" then
         fspath = treeDown(fspath)
         typeLabel.text = "Folder"
-        notes:refresh("")
         listPopulate()
       end
     elseif char == 13 then -- Enter
@@ -491,11 +513,35 @@ function prog:customKeys(char, code, player)
     elseif char == 101 then -- E
       edit()
     elseif char == 3 then -- Ctrl-C
-      copyButton:touch(copyButton.x, copyButton.y)
+      copyButton.pressed = true
+      copyButton:draw()
+      copy()
+      if cutButton.pressed then
+        cutButton.pressed = false
+        cutButton:draw()
+      end
     elseif char == 24 then -- Ctrl-X
-      cutButton:touch(cutButton.x, cutButton.y)
+      cutButton.pressed = true
+      cutButton:draw()
+      cut()
+      if copyButton.pressed then
+        copyButton.pressed = false
+        copyButton:draw()
+      end
     elseif char == 22 then -- Ctrl-V
-
+      if copybuffer == {} then
+        notes:refresh("Buffer Empty")
+      else
+        if copyButton.pressed then
+          copyButton.pressed = false
+        end
+        if cutButton.pressed then
+          cutButton.pressed = false
+        end
+        paste()
+        copyButton:draw()
+        cutButton:draw()
+      end
     end
   else
     return false

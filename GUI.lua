@@ -547,8 +547,8 @@ end
 
 function button:touch(x, y, button, player, con)
   if hitbox(self, x, y, not self.disabled) then
-    self.onTouch(player)
     self.pressed = not self.pressed
+    self.onTouch(player)
     if not con.disabled then
       self:draw()
     end
