@@ -301,8 +301,8 @@ end
 -- local function cut()
 -- end
 
-local function paste()
-end
+-- local function paste()
+-- end
 
 local function new()
   fileList.disabled = true
@@ -495,7 +495,7 @@ function prog:customKeys(char, code, player)
     elseif char == 24 then -- Ctrl-X
       cutButton:touch(cutButton.x, cutButton.y)
     elseif char == 22 then -- Ctrl-V
-      
+
     end
   else
     return false
