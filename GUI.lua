@@ -142,7 +142,6 @@ end
 -----Container Object: Used for the GUI Manager and Windows-----
 
 local container = {}
-container.entries = {}
 container.disabled = false
 
 function container:new(x, y, width, height, back, fore)
@@ -153,6 +152,7 @@ function container:new(x, y, width, height, back, fore)
   obj.height = height or SCREEN_HEIGHT
   obj.back = back or BACKGROUND
   obj.fore = fore or FOREGROUND
+  obj.entries = {}
   self.__index = self
   return obj
 end
@@ -163,7 +163,7 @@ function container:draw()
   gpu.fill(self.x, self.y, self.width, self.height, " ")
   if not self.disabled then
     for i = #self.entries, 1, -1 do
-      if self.entries[i].draw and not self.entries[i].disabled then
+      if self.entries[i].draw then -- and not self.entries[i].disabled then
         self.entries[i]:draw()
       end
     end
@@ -174,7 +174,6 @@ function container:moveToFront(obj)
   ArrayRemove(self.entries, function(t, i, j)
     local v = t[i]
     return (v ~= obj) end)
-  self:draw()
   self.entries[#self.entries+1] = obj
 end
 
@@ -185,10 +184,14 @@ function container:moveToBack(obj)
   table.insert(self.entries, 1, obj)
 end
 
-function container:removeEntry(obj)
+function container:addEntry(e)
+  self.entries[#self.entries + 1] = e
+end
+
+function container:removeEntry(e)
   ArrayRemove(self, function(t, i, j)
     local v = t[i]
-    return (v ~= obj) end)
+    return (v ~= e) end)
     return nil
 end
 
@@ -198,7 +201,8 @@ end
 function container:touch(x, y, button, player, con)
   if hitbox(self, x, y, not self.disabled) then
     if con ~= nil and con.entries[#con.entries] ~= self then
-      con.moveToFront(self)
+      con:moveToFront(self)
+      con:draw()
     end
     for i = #self.entries, 1, -1 do
       if self.entries[i].touch then
@@ -224,7 +228,8 @@ end
 function container:scroll(x, y, dir, player, con)
   if hitbox(self, x, y, not self.disabled) then
     if con ~= nil and con.entries[#con.entries] ~= self then
-      con.moveToFront(self)
+      con:moveToFront(self)
+      con:draw()
     end
     for i = #self.entries, 1, -1 do
       if self.entries[i].scroll then
@@ -286,7 +291,7 @@ end
 
 function GUI.newBox(con, x, y, width, height, back)
   local obj = box:new(x + con.x - 1, y + con.y - 1, width, height, back)
-  con.entries[#con.entries+1] = obj
+  con:addEntry(obj)
   return obj
 end
 
@@ -345,7 +350,7 @@ end
 
 function GUI.newFrame(con, x, y, width, height, back, fore, text)
   local obj = frame:new(x + con.x - 1, y + con.y - 1, width, height, back, fore, text)
-  con.entries[#con.entries+1] = obj
+  con:addEntry(obj)
   return obj
 end
 
@@ -412,7 +417,7 @@ end
 
 function GUI.newLabel(con, x, y, width, back, fore, text, fill, fillFore)
   local obj = label:new(x + con.x - 1, y + con.y - 1, width, back, fore, text, fill, fillFore)
-  con.entries[#con.entries+1] = obj
+  con:addEntry(obj)
   return obj
 end
 
@@ -459,7 +464,7 @@ end
 
 function GUI.newVLabel(con, x, y, height, back, fore, text, fill, fillFore)
   local obj = vLabel:new(x + con.x - 1, y + con.y - 1, height, back, fore, text, fill, fillFore)
-  con.entries[#con.entries+1] = obj
+  con:addEntry(obj)
   return obj
 end
 
@@ -542,8 +547,8 @@ end
 
 function button:touch(x, y, button, player, con)
   if hitbox(self, x, y, not self.disabled) then
-    self.onTouch(player)
     self.pressed = not self.pressed
+    self.onTouch(player)
     if not con.disabled then
       self:draw()
     end
@@ -562,8 +567,8 @@ function button:onTouch()
 end
 
 function GUI.newButton(con, x, y, width, height, back, fore, backPressed, forePressed, text)
-  local obj = button:new(x, y, width, height, back, fore, backPressed, forePressed, text)
-  con.entries[#con.entries+1] = obj
+  local obj = button:new(x + con.x - 1, y + con.y - 1, width, height, back, fore, backPressed, forePressed, text)
+  con:addEntry(obj)
   return obj
 end
 
@@ -637,8 +642,8 @@ function radio:onActive()
 end
 
 function GUI.newRadio(con, x, y, back, fore)
-  local obj = radio:new(x, y, back, fore)
-  con.entries[#con.entries+1] = obj
+  local obj = radio:new(x + con.x - 1, y + con.y - 1, back, fore)
+  con:addEntry(obj)
   return obj
 end
 
@@ -710,7 +715,7 @@ end
 
 function GUI.newText(con, x, y, width, height, back, fore, txt)
   local obj = text:new(x + con.x - 1, y + con.y - 1, width, height, back, fore, txt)
-  con.entries[#con.entries+1] = obj
+  con:addEntry(obj)
   return obj
 end
 
@@ -796,7 +801,7 @@ end
 
 function GUI.newBar(con, x, y, width, height, inactive, active, current, max, thin, vert)
   local obj = pbar:new(x + con.x - 1, y + con.y - 1, width, height, inactive, active, current, max, thin, vert)
-  con.entries[#con.entries+1] = obj
+  con:addEntry(obj)
   return obj
 end
 
@@ -837,7 +842,7 @@ end
 
 local function lineShift(tab, line, letter, dir)
   local result = {}
-  if dir == -1 then -- Enter
+  if dir == -1 then -- Down
     local i = 1
     repeat
       if i ~= line then
@@ -848,7 +853,7 @@ local function lineShift(tab, line, letter, dir)
       end
       i = i + 1
     until(i > #tab)
-  elseif dir == 1 then -- Delete
+  elseif dir == 1 then -- Up
     local i = 1
     repeat
       if i ~= line - 1 then
@@ -865,7 +870,6 @@ end
 
 local input = {}
 input.disabled = false
-input.text = {}
 input.xOffset = 0
 input.yOffset = 0
 input.focus = false
@@ -899,6 +903,7 @@ function input:new(x, y, width, height, back, fore, idleBack, idleFore, cursorBa
     x = obj.x,
     y = obj.y,
   }
+  obj.text = {}
   self.__index = self
   return obj
 end
@@ -1093,8 +1098,8 @@ function input:scrollCheck()
 end
 
 function GUI.newInput(con, x, y, width, height, back, fore, idleBack, idleFore, cursorBack, placeText, placeColor)
-  local obj = input:new(x, y, width, height, back, fore, idleBack, idleFore, cursorBack, placeText, placeColor)
-  con.entries[#con.entries+1] = obj
+  local obj = input:new(x + con.x - 1, y + con.y - 1, width, height, back, fore, idleBack, idleFore, cursorBack, placeText, placeColor)
+  con:addEntry(obj)
   return obj
 end
 
@@ -1127,7 +1132,6 @@ Public Functions:
   clearEntries       : clears the entries table allowing for more iterating.
 ]]--
 local list = {}
-list.entries = {}
 list.disabled = false
 list.yOffset = 0
 list.align = "center"
@@ -1159,6 +1163,7 @@ function list:new(x, y, width, height, sep, back, fore, selectBack, selectFore, 
     }
   }
   obj.sep = sep
+  obj.entries = {}
   self.__index = self
   return obj
 end
@@ -1259,10 +1264,12 @@ end
 function list:touch(x, y, button, player, con)
   if hitbox(self, x, y, not self.disabled) then
       local id = math.ceil((y - self.y + 1) / (self.sep * 2 + 1))+self.yOffset
-      self.selected = id
-      self.entries[id].onPress(id, player)
-      self:draw()
-      return true
+      if id <= #self.entries then
+        self.selected = id
+        self.entries[id].onPress(id, player)
+        self:draw()
+        return true
+      end
   end
 end
 
@@ -1289,8 +1296,8 @@ function list:clearEntries()
 end
 
 function GUI.newList(con, x, y, width, height, sep, back, fore, selectBack, selectFore, altBack, altFore)
-  local obj = list:new(x, y, width, height, sep, back, fore, selectBack, selectFore, altBack, altFore)
-  con.entries[#con.entries+1] = obj
+  local obj = list:new(x + con.x - 1, y + con.y - 1, width, height, sep, back, fore, selectBack, selectFore, altBack, altFore)
+  con:addEntry(obj)
   return obj
 end
 
@@ -1393,7 +1400,7 @@ end
 
 function GUI.newScroll(con, tether, back, fore, backPressed, forePressed)
   local obj = scroll:new(tether, back, fore, backPressed, forePressed)
-  con.entries[#con.entries+1] = obj
+  con:addEntry(obj)
   return obj
 end
 
@@ -1433,25 +1440,28 @@ local function eventThread(tab)
   end
 end
 
-function GUI.manager(run, back, fore)
-  local manager = container:new(1, 1, SCREEN_WIDTH, SCREEN_HEIGHT, back, fore)
+function GUI.manager(back, fore)
+  local manager = container:new(1, 1, SCREEN_WIDTH, SCREEN_HEIGHT, back or BACKGROUND, fore or FOREGROUND)
   local t
+  manager.run = true
   function manager:start()
     t = thread.create(eventThread, self)
     self:draw()
   end
   function manager:togglePause()
-    if self.disabled == false then
-      t:suspend()
-      self.disabled = not self.disabled
-    else
-      self.disabled = not self.disabled
-      t:resume()
-      self:draw()
-    end
+    event.timer(1, function()
+      if self.disabled == false then
+        self.disabled = true
+        t:suspend()
+      else
+        self.disabled = false
+        t:resume()
+      end
+    end)
   end
   function manager:stop()
-    run = false
+    self.run = false
+    self.disabled = true
     t:kill()
     GUI.resetBack()
   end
@@ -1481,7 +1491,7 @@ Public Functions:
 ]]
 function GUI.newWindow(con, x, y, width, height, back, fore)
   local obj = container:new(x + con.x - 1, y + con.y - 1, width, height, back, fore)
-  con.entries[#con.entries+1] = obj
+  con:addEntry(obj)
   return obj
 end
 
