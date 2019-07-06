@@ -15,8 +15,8 @@ local term = require("term")
 local VER = 2.0
 local PROG_NAME = "/tank/crawl"
 local EDIT = "shedit" -- Edit program used
-local fspath = "//home/" -- Default file path
 
+local fspath = "//home/" -- Default file path
 local copybuffer = {} -- [1] 1 is copy, 2 is paste.  [2] File Path for copying.
 local delconf = false -- Confirmation for deleting files
 local prog = GUI.manager()
