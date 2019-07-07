@@ -18,11 +18,15 @@ local ttif = {}
 function ttif.save(tab, width, height, path)
   local count = {}
   for p = 1, #tab do
-    count[#count+1] = {tab[p].back, 1}
-
-
-  end
-
+    
+    for i = 1, #count do
+        
+        if count[i][1] == tab[p].back then
+            count[i][2] = count[i][2] + 1
+        end
+        
+    end
+end
 
   -- {{hex, cnt}, ...}
   table.sort(count, function(a,b) return a[2] < b[2] end)
@@ -64,9 +68,10 @@ return ttif
 --   print(table.concat(out[v], " : "))
 -- end
 
+
+
+
 -- sort via count table
-
-
 
 -- Format sorts by colors
 
