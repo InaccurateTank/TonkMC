@@ -13,27 +13,61 @@ local gpu = component.gpu
 
 local ttif = {}
 
--- {width, height, mainBack, {back, x, y}, {back, x, y}}
-
-function ttif.save(tab, width, height, path)
-  local count = {}
-  for p = 1, #tab do
-    
-    for i = 1, #count do
-        
-        if count[i][1] == tab[p].back then
-            count[i][2] = count[i][2] + 1
-        end
-        
+-----Aux Functions-----
+local function ArrayRemove(tab, fnKeep) -- Optimized table removal function ripped from https://stackoverflow.com/a/53038524
+  local j = 1
+  local len = #tab
+  for i=1,len do
+    if fnKeep(tab, i, j) then
+      -- Move i's kept value to j's position, if it's not already there.
+      if i ~= j then
+        tab[j] = tab[i]
+        tab[i] = nil
+      end
+      j = j + 1 -- Increment position of where we'll place the next kept value.
+    else
+      tab[i] = nil
     end
+  end
+  return tab
 end
 
-  -- {{hex, cnt}, ...}
-  table.sort(count, function(a,b) return a[2] < b[2] end)
+local function tally(t, order) -- Returns an ordered array of tables with table frequency data.  Sorts if required.
+  local tmp = {}
+  for i = 1, #t do
+    tmp[t[i].back] = (tmp[t[i].back] or 0) + 1
+  end
+  local res = {}
+  for k, v in pairs(tmp) do
+      res[#res+1] = {k, v} -- {{hex, cnt}, ...}
+  end
+  if order then
+    table.sort(res, order)
+  end
+  return res
+end
 
+function ttif.save(tab, width, height, path)
+  local count = tally(tab, function(a, b) return a[2] > b[2] end)
+  table.sort(tab, function(a, b)
+    local c1, c2
+    for i = 1, #count do
+      if count[i][1] == a.back then -- Which ID does the main entry match on the hash?
+        c1 = i
+      end
+      if count[i][1] == b.back then -- ditto
+        c2 = i
+      end
+    end
+    return c1 < c2 -- lower entries are more common
+  end)
   tab.width = width
   tab.height = height
-
+  tab.mainBack = count[1][1]
+  ArrayRemove(tab, function(t, i, j)
+    local v = t[i]
+    return (v.back ~= count[1][1]) end)
+  -- {width, height, mainBack, {back, x, y}, ...}
   local file = io.open(path, "w")
   file:write(serial.serialize(tab))
   file:close()
