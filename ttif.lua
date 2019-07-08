@@ -49,7 +49,7 @@ end
 
 function ttif.save(tab, width, height, path)
   local count = tally(tab, function(a, b) return a[2] > b[2] end)
-  table.sort(tab, function(a, b)
+  table.sort(tab, function(a, b) -- Sorts via color frequency hash
     local c1, c2
     for i = 1, #count do
       if count[i][1] == a.back then -- Which ID does the main entry match on the hash?
@@ -63,8 +63,8 @@ function ttif.save(tab, width, height, path)
   end)
   tab.width = width
   tab.height = height
-  tab.mainBack = count[1][1]
-  ArrayRemove(tab, function(t, i, j)
+  tab.mainBack = count[1][1] -- Choose most common color
+  ArrayRemove(tab, function(t, i, j) -- Nuke all entries of that color
     local v = t[i]
     return (v.back ~= count[1][1]) end)
   -- {width, height, mainBack, {back, x, y}, ...}
@@ -95,18 +95,14 @@ end
 
 return ttif
 
--- ttif.save({b = "b", {1, 2}, {3, 4}, {5, 6}})
+-- local test = {{back = 0x333399, 1, 1}, {back = 0xffffff, 1, 2}, {back = 0x333399, 2, 1}, {back = 0xffffff, 2, 2}}
+
+-- ttif.save(test, 2, 2, "/home/bigboi")
 -- local out = ttif.load("/home/bigboi")
 
+-- print(out.width)
+-- print(out.height)
+-- print(out.mainBack)
 -- for v = 1, #out do
---   print(table.concat(out[v], " : "))
+--   print(out[v].back)
 -- end
-
-
-
-
--- sort via count table
-
--- Format sorts by colors
-
--- Choose most common background and fill the board with it
