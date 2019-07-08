@@ -47,6 +47,7 @@ local function tally(t, order) -- Returns an ordered array of tables with table 
   return res
 end
 
+-----API Commands-----
 function ttif.save(tab, width, height, path)
   local count = tally(tab, function(a, b) return a[2] > b[2] end)
   table.sort(tab, function(a, b) -- Sorts via color frequency hash
