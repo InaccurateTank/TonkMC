@@ -15,6 +15,7 @@ local reactor = component.reactor
 local inv = component.inventorycontroller
 local tank = component.tankcontroller
 local rs = component.redstone
+local cap = ""
 local SIDE = ""
 
 local MAXHEAT = reactor.getMaxHeat()
@@ -26,6 +27,10 @@ local exit = GUI.newButton(prog, 80, 1, 1, 1, 0xff3333, 0xff3333, 0xffffff, 0xff
 local title = GUI.newLabel(prog, 1, 1, prog.width, 0x333399, 0xffffff, PROG_NAME.." v:"..VER)
 title.align = "left"
 
+-----Fuel Window-----
+
+-----Energy Window-----
+
 -----Aux Functions-----
 local function checkReactor()
   local heat = reactor.getHeat()
@@ -36,7 +41,22 @@ local function checkReactor()
   local hotTank = coolent[2].amount
 end
 
-local function fuelCheck()
+local function checkEnergy()
+end
+
+local function checkFuel(hcycle)
+  local rods = {}
+  if hcycle then
+    for i = 1, 54 do
+      local slot = inv.getStackInSlot(SIDE, i)
+      if slot ~= nil then
+        if string.find(slot.label, "Fuel") then
+          rods[i] = slot
+        end
+      end
+    end
+  end
+  return rods
 end
 
 -----Common Commands-----
@@ -52,6 +72,8 @@ end
 
 prog:start()
 repeat
+  checkReactor()
+  checkEnergy()
   os.sleep(0.25)
 until not prog.run
 

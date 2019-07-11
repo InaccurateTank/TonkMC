@@ -14,6 +14,7 @@ local event = require("event")
 local thread = require("thread")
 local unicode = require("unicode")
 local gpu = component.gpu
+local screen = component.screen
 
 local GUI = {}
 local SCREEN_WIDTH, SCREEN_HEIGHT = gpu.getResolution()
@@ -137,6 +138,20 @@ function GUI.resetBack() -- Resets colors to their pre-GUI state and clears the 
   gpu.setBackground(BACKGROUND)
   gpu.setForeground(FOREGROUND)
   gpu.fill(1, 1, SCREEN_WIDTH, SCREEN_HEIGHT, " ")
+end
+
+function GUI.res(tier)
+  if tier == 1 then
+    gpu.setResolution(50, 16)
+  elseif tier == 2 then
+    gpu.setResolution(80, 25)
+  elseif tier == 3 then
+    gpu.setResolution(160, 50)
+  end
+end
+
+function GUI.invertTouch(b)
+  screen.setTouchModeInverted(b)
 end
 
 -----Container Object: Used for the GUI Manager and Windows-----
@@ -415,6 +430,11 @@ function label:draw()
   end
 end
 
+function label:refresh(txt)
+  self.text = txt
+  self:draw()
+end
+
 function GUI.newLabel(con, x, y, width, back, fore, text, fill, fillFore)
   local obj = label:new(x + con.x - 1, y + con.y - 1, width, back, fore, text, fill, fillFore)
   con:addEntry(obj)
@@ -460,6 +480,11 @@ function vLabel:draw()
       end
     end
   end
+end
+
+function vLabel:refresh(txt)
+  self.text = txt
+  self:draw()
 end
 
 function GUI.newVLabel(con, x, y, height, back, fore, text, fill, fillFore)

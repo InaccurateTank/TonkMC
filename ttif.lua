@@ -40,6 +40,7 @@ local function tally(t, order) -- Returns an ordered array of tables with table 
   local res = {}
   for k, v in pairs(tmp) do
       res[#res+1] = {k, v} -- {{hex, cnt}, ...}
+      tmp[k] = nil
   end
   if order then
     table.sort(res, order)
@@ -83,14 +84,18 @@ end
 
 function ttif.draw(tab, x, y)
   local currentBack = tab.mainBack
-  gpu.setBackground(tab.mainBack)
-  gpu.fill(x, y, tab.width, tab.height, " ")
+  if currentBack ~= "na" then
+    gpu.setBackground(currentBack)
+    gpu.fill(x, y, tab.width, tab.height, " ")
+  end
   for p = 1, #tab do
-    if currentBack ~= tab[p].back then
-      currentBack = tab[p].back
-      gpu.setBackground(tab[p].back)
+    if currentBack ~= "na" then
+      if currentBack ~= tab[p].back then
+        currentBack = tab[p].back
+        gpu.setBackground(tab[p].back)
+      end
+      gpu.set(x + tab[p].x - 1, y + tab[p].y - 1, " ")
     end
-    gpu.set(x + tab[p].x - 1, y + tab[p].y - 1, " ")
   end
 end
 
