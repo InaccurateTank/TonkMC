@@ -7,18 +7,21 @@ Contains ants
 local component = require("component")
 local sides = require("sides")
 local GUI = require("GUI")
-local term = require("term")
+local thread = require("thread")
 
 local VER = 0.1
 local PROG_NAME = "/tank/tera"
-local reactor = component.reactor
-local inv = component.inventorycontroller
-local tank = component.tankcontroller
+local reactor = component.reactor_redstone_port
+local inv = component.inventory_controller
+local tank = component.tank_controller
 local rs = component.redstone
 local cap = ""
-local SIDE = ""
+local CSIDE = sides.east
+local RSIDE = sides.down
 
 local MAXHEAT = reactor.getMaxHeat()
+local COOLMAX = 10000
+local RODS = {}
 local prog = GUI.manager()
 prog.back = 0xcccccc
 
@@ -31,29 +34,36 @@ title.align = "left"
 
 -----Energy Window-----
 
------Aux Functions-----
+-----Program Functions-----
 local function checkReactor()
-  local heat = reactor.getHeat()
   local active = reactor.getReactorEUOutput()
+  local heat = reactor.getHeat()
   local heatPercent = math.floor((math.min(heat, MAXHEAT) / MAXHEAT) * 100)
-  local coolent = tank.getFluidInTank(SIDE)
+  local coolent = tank.getFluidInTank(CSIDE)
   local coolTank = coolent[1].amount
+  local coolPercent = math.floor((math.min(coolTank, 10000) / 10000) * 100)
   local hotTank = coolent[2].amount
+  local hotPercent = math.floor((math.min(hotTank, 10000) / 10000) * 100)
+  return active, heat, heatPercent, coolTank, coolPercent, hotTank, hotPercent
 end
 
 local function checkEnergy()
 end
 
-local function checkFuel(hcycle)
-  local rods = {}
-  if hcycle then
+local function checkFuel(rods, deep)
+  if deep then
+    rods = {}
     for i = 1, 54 do
-      local slot = inv.getStackInSlot(SIDE, i)
+      local slot = inv.getStackInSlot(CSIDE, i)
       if slot ~= nil then
         if string.find(slot.label, "Fuel") then
-          rods[i] = slot
+          rods[#rods+1] = slot
         end
       end
+    end
+  else
+    for k, v in pairs(rods) do
+      rods[k] = inv.getStackInSlot(CSIDE, k)
     end
   end
   return rods
@@ -61,8 +71,9 @@ end
 
 -----Common Commands-----
 local function close()
+  rs.setOutput(RSIDE, 0)
+  GUI.invertTouch(false)
   prog:stop()
-  term.setCursor(1, 1)
   os.exit()
 end
 
@@ -70,6 +81,8 @@ end
 
 -----Container Events-----
 
+GUI.res(2)
+GUI.invertTouch(true)
 prog:start()
 repeat
   checkReactor()

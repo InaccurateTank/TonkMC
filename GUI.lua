@@ -1,18 +1,21 @@
 --[[
-GUI API Ver:2.0
+GUI API Ver:2.1
 Written by Tankman
 Contains ants
 
 Changelog:
-  Refactor to use metatables.  Uses less memory than previous setup at the cost of call speed.
-  Unicode support
-  Custom key handling offloaded onto container event handlers, allowing self-contained event handing.
+  GUI.res sets screen resolution to desired tier quickly.
+  GUI.invertTouch is a wrapper for a GPU command.  Used for quick access.
+  Labels got their own refresh command.
+  Removed an uneeded variable
+  Moved term api cursor movement to the GUI exit command
 ]]
 
 local component = require("component")
 local event = require("event")
 local thread = require("thread")
 local unicode = require("unicode")
+local term = require("term")
 local gpu = component.gpu
 local screen = component.screen
 
@@ -1450,8 +1453,8 @@ Public Functions:
   togglePause       : Temporarily pauses event handler and disables GUI.
 ]]
 local function eventThread(tab)
-  local r = true
-  while r do
+  -- local r = true
+  while true do
     local name, _, a1, a2, a3, a4 = event.pullMultiple("touch", "scroll", "key_down")
     if name == "touch" then
       tab:touch(a1, a2, a3, a4)
@@ -1489,6 +1492,7 @@ function GUI.manager(back, fore)
     self.disabled = true
     t:kill()
     GUI.resetBack()
+    term.setCursor(1, 1)
   end
   return manager
 end

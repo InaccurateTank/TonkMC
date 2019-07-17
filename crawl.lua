@@ -1,18 +1,18 @@
 --[[
-/tank/crawl Ver:2.0
+/tank/crawl Ver:2.1
 Written by Tankman
 Contains ants
 
 Changelog:
-  Initial release with GUI 2.0
+  Use GUI.res
+  Removed term and commands
 ]]
 
 local event = require("event")
 local GUI = require("GUI")
 local fs = require("filesystem")
-local term = require("term")
 
-local VER = 2.0
+local VER = 2.1
 local PROG_NAME = "/tank/crawl"
 local EDIT = "edit" -- Edit program used
 
@@ -268,7 +268,6 @@ end
 -----Common Commands-----
 local function close()
   prog:stop()
-  term.setCursor(1, 1)
   os.exit()
 end
 
@@ -579,6 +578,7 @@ end
 
 
 listPopulate()
+GUI.res(2)
 prog:start()
 repeat
   os.sleep(0.25)
