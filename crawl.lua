@@ -12,9 +12,9 @@ local event = require("event")
 local GUI = require("GUI")
 local fs = require("filesystem")
 
-local VER = 2.1
-local PROG_NAME = "/tank/crawl"
-local EDIT = "edit" -- Edit program used
+local ver = 2.1
+local progName = "/tank/crawl"
+local edit = "edit" -- Edit program used
 
 local fspath = "//home/" -- Default file path
 local copybuffer = {} -- [1] 1 is copy, 2 is paste.  [2] File Path for copying.
@@ -24,7 +24,7 @@ prog.back = 0xcccccc
 
 -----Main Window-----
 local exit = GUI.newButton(prog, 80, 1, 1, 1, 0xff3333, 0xff3333, 0xffffff, 0xffffff, " ")
-local title = GUI.newLabel(prog, 1, 1, prog.width, 0x333399, 0xffffff, PROG_NAME.." v:"..VER)
+local title = GUI.newLabel(prog, 1, 1, prog.width, 0x333399, 0xffffff, progName.." v:"..ver)
 title.align = "left"
 
 GUI.newLabel(prog, 3, 3, 17, prog.back, 0x000000, "[Folder Path]", "-", 0x000000)
@@ -298,7 +298,7 @@ end
 local function edit()
   GUI.resetBack()
   prog.togglePause()
-  os.execute(EDIT.." \""..fspath..fileList.entries[fileList.selected].text.."\"")
+  os.execute(edit.." \""..fspath..fileList.entries[fileList.selected].text.."\"")
   prog.togglePause()
   prog:draw()
 end
@@ -350,7 +350,7 @@ local function paste()
 end
 
 local function new()
-  fileList.disabled = true
+  -- fileList.disabled = true
   dirList.disabled = true
   newGUI.disabled = false
   folderInput.text[1] = fspath
@@ -384,7 +384,7 @@ local function confirm()
   txtRadio.active = false
   luaRadio.active = false
   naRadio.active = false
-  fileList.disabled = false
+  -- fileList.disabled = false
   dirList.disabled = false
   newGUI.disabled = true
   listPopulate()
@@ -439,7 +439,7 @@ function cancelButton:onTouch()
   txtRadio.active = false
   luaRadio.active = false
   naRadio.active = false
-  fileList.disabled = false
+  -- fileList.disabled = false
   dirList.disabled = false
   newGUI.disabled = true
   fileList:draw()
