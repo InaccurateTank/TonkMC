@@ -298,6 +298,7 @@ function box:new(x, y, width, height, back)
   obj.y = y
   obj.width = width
   obj.height = height
+  obj.back = back
   self.__index = self
   return obj
 end
