@@ -1,6 +1,6 @@
 --[[
 GUI API Ver:2.1
-Written by Tankman
+Written by Tank
 Contains ants
 
 Changelog:

@@ -1,6 +1,6 @@
 --[[
 ttif API Ver:1.0
-Written by Tankman
+Written by Tank
 Contains ants
 
 Changelog:

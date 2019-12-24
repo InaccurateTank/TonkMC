@@ -1,6 +1,6 @@
 --[[
 /tank/crawl Ver:2.1
-Written by Tankman
+Written by Tank
 Contains ants
 
 Changelog:
@@ -17,7 +17,7 @@ local progName = "/tank/crawl"
 local edit = "edit" -- Edit program used
 
 local fspath = "//home/" -- Default file path
-local copybuffer = {} -- [1] 1 is copy, 2 is paste.  [2] File Path for copying.
+local copybuffer = {} -- [1] 1 is copy, 2 is cut.  [2] File Path for copying.
 local delconf = false -- Confirmation for deleting files
 local prog = GUI.manager()
 prog.back = 0xcccccc
