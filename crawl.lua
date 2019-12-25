@@ -130,19 +130,19 @@ local function treeUp(path, folder)
   return path
 end
 
-local function fixName(name)
-  local i = 0
-  local old = name
-  while true do
-    if (fs.exists(name)) then
-      i = i + 1
-      name = old.."("..i..")"
-    else
-      break
-    end
-  end
-  return name
-end
+-- local function fixName(name)
+--   local i = 0
+--   local old = name
+--   while true do
+--     if (fs.exists(name)) then
+--       i = i + 1
+--       name = old.."("..i..")"
+--     else
+--       break
+--     end
+--   end
+--   return name
+-- end
 
 local function appendName(name) -- takes file path, appends a number if neccesary
   local dir, n1, n2 = name:match("(.-)([^/]-)%.?([^%./]-)$") -- seperate components

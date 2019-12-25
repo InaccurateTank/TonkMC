@@ -36,12 +36,17 @@ title.align = "left"
 
 -----Program Functions-----
 local function checkReactor()
-  if not pcall(reactor.getReactorEUOutput) then -- See if the reactor even exists
+  if not component.get(reactor) then -- See if the reactor even exists
     rs.setOutput(rSide, 0)  -- if not, shut off redstone (if on) and check again 3 times once per second.  If found, restart reactor.
     -- TODO: some code to do UI stuff when this is happening
     for i = 1, 3 do
-      if pcall(reactor.getReactorEUOutput) then
+      if component.get(reactor) then
         -- TODO: put some code here to restart if stopped to check
+        rs.setOutput(rSide, 0)
+        GUI.invertTouch(false)
+        prog:stop()
+        error("Reactor does not exist.  Please check the block formation for explosions.")
+        os.exit()
         break
       elseif i == 3 then
         return false
@@ -58,10 +63,6 @@ local function checkReactor()
   local hotTank = coolent[2].amount
   local hotPercent = math.floor((math.min(hotTank, 10000) / 10000) * 100)
   return {active, heat, heatPercent, coolTank, coolPercent, hotTank, hotPercent}
-end
-
-local function checkEnergy()
-  -- TODO: code to automate reactor based on cacpacitor levels
 end
 
 local function checkFuel(fuel, deep)
@@ -111,6 +112,10 @@ local function reactorControl()
   end
 end
 
+local function capControl()
+  -- TODO: code to automate reactor based on cacpacitor levels
+end
+
 -----Common Commands-----
 local function close()
   rs.setOutput(rSide, 0)
@@ -123,11 +128,12 @@ end
 
 -----Container Events-----
 
+
 GUI.res(2)
 GUI.invertTouch(true)
 prog:start()
 repeat
   reactorControl()
-  checkEnergy()
+  capControl()
   os.sleep(0.25)
 until not prog.run
