@@ -36,6 +36,19 @@ title.align = "left"
 
 -----Program Functions-----
 local function checkReactor()
+  if not pcall(reactor.getReactorEUOutput) then -- See if the reactor even exists
+    rs.setOutput(rSide, 0)  -- if not, shut off redstone (if on) and check again 3 times once per second.  If found, restart reactor.
+    -- TODO: some code to do UI stuff when this is happening
+    for i = 1, 3 do
+      if pcall(reactor.getReactorEUOutput) then
+        -- TODO: put some code here to restart if stopped to check
+        break
+      elseif i == 3 then
+        return false
+      end
+      os.sleep(1)
+    end
+  end
   local active = reactor.getReactorEUOutput()
   local heat = reactor.getHeat()
   local heatPercent = math.floor((math.min(heat, maxHeat) / maxHeat) * 100)
@@ -48,47 +61,53 @@ local function checkReactor()
 end
 
 local function checkEnergy()
+  -- TODO: code to automate reactor based on cacpacitor levels
 end
 
-local function checkFuel(rods, deep)
+local function checkFuel(fuel, deep)
   if deep then
-    rods = {}
+    fuel = {}
     for i = 1, 54 do
       local slot = inv.getStackInSlot(cSide, i)
       if slot ~= nil then
         if string.find(slot.label, "Fuel") then
-          rods[#rods+1] = slot
+          fuel[i] = slot
         end
       end
     end
   else
-    for k, v in pairs(rods) do
-      rods[k] = inv.getStackInSlot(cSide, k)
+    for k, v in pairs(fuel) do
+      fuel[k] = inv.getStackInSlot(cSide, k)
     end
   end
-  return rods
+  return fuel
 end
 
 local function reactorControl()
   local status = checkReactor()
   if status[1] == 0 then
-    print("offline")
+    print("offline") -- TODO: Actual UI stuff
   else
-    print("online")
+    print("online") -- TODO: Actual UI stuff
   end
-  if overide then
+  if overide then -- Manual shutoff
     print("SCRAM engaged")
+    -- TODO: Actual UI stuff
     rs.setOutput(rSide, 0)
   end
-  if status[3] >= 80 then
-    print("critical temps")
+  if status[3] >= 80 then -- 85% is failure, we want to stop BEFORE that.
+    print("critical temps") -- TODO: Actual UI stuff
     rs.setOutput(rSide, 0)
+  elseif status[3] >= 70 then -- 70% however is just radiation leaks.
+      print("radwarning") -- TODO: Actual UI stuff
   end
-  if status[3] >= 70 then
-    print("radwarning")
-  end
-  if rods == "maxdam" then
-    print("fuel depleated")
+  rods = checkFuel(rods)
+  for k, v in pairs(rods) do
+    if rods[k].damage == 0 then
+      print("fuel depleted") -- TODO: Actual UI stuff
+      -- TODO: set activator to lock until deep fuel scan
+      rs.setOutput(rSide, 0)
+    end
   end
 end
 
@@ -112,6 +131,3 @@ repeat
   checkEnergy()
   os.sleep(0.25)
 until not prog.run
-
--- 70% radiation
--- 85% lava

@@ -82,6 +82,10 @@ function ttif.load(file)
   return tab
 end
 
+function ttif.capture(x, y, width, height, path)
+  -- TODO: record screen area for picture
+end
+
 function ttif.draw(tab, x, y)
   local currentBack = tab.mainBack
   if currentBack ~= "na" then
