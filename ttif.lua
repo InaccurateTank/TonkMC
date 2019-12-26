@@ -83,7 +83,14 @@ function ttif.load(file)
 end
 
 function ttif.capture(x, y, width, height, path)
-  -- TODO: record screen area for picture
+  local temp = {}
+  for i = 1, width do
+    for j = 1, height do
+      local _, b, _, _, _ = gpu.get(x + i - 1, y + j - 1)
+      temp[#temp+1] = {i, j, back = b}
+    end
+  end
+  ttif.save(temp, width, height, path)
 end
 
 function ttif.draw(tab, x, y)
