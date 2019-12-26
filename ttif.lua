@@ -111,15 +111,3 @@ function ttif.draw(tab, x, y)
 end
 
 return ttif
-
--- local test = {{back = 0x333399, 1, 1}, {back = 0xffffff, 1, 2}, {back = 0x333399, 2, 1}, {back = 0xffffff, 2, 2}}
-
--- ttif.save(test, 2, 2, "/home/bigboi")
--- local out = ttif.load("/home/bigboi")
-
--- print(out.width)
--- print(out.height)
--- print(out.mainBack)
--- for v = 1, #out do
---   print(out[v].back)
--- end
