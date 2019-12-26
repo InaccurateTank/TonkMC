@@ -9,7 +9,7 @@ local sides = require("sides")
 local GUI = require("GUI")
 local thread = require("thread")
 
-local ver = 0.1
+local ver = 1.0
 local progName = "/tank/tera"
 local reactor = component.reactor_redstone_port
 local inv = component.inventory_controller
@@ -37,18 +37,21 @@ title.align = "left"
 -----Program Functions-----
 local function checkReactor()
   if not component.get(reactor) then -- See if the reactor even exists
-    rs.setOutput(rSide, 0)  -- if not, shut off redstone (if on) and check again 3 times once per second.  If found, restart reactor.
+    local rbuffer = rs.setOutput(rSide, 0) -- if not, shut off reactor
     -- TODO: some code to do UI stuff when this is happening
-    for i = 1, 3 do
+    for i = 1, 3 do -- Check if reactor exists again once per second for 3 seconds
       if component.get(reactor) then
-        -- TODO: put some code here to restart if stopped to check
+        if rbuffer > 0 then -- Restart reactor if it was on
+          rs.setOutput(rSide, 15)
+        end
+        -- TODO: revert UI stuff
+        break
+      elseif i == 3 then
         rs.setOutput(rSide, 0)
         GUI.invertTouch(false)
         prog:stop()
         error("Reactor does not exist.  Please check the block formation for explosions.")
         os.exit()
-        break
-      elseif i == 3 then
         return false
       end
       os.sleep(1)
@@ -92,22 +95,22 @@ local function reactorControl()
     print("online") -- TODO: Actual UI stuff
   end
   if overide then -- Manual shutoff
-    print("SCRAM engaged")
-    -- TODO: Actual UI stuff
+    print("SCRAM engaged") -- TODO: Actual UI stuff
     rs.setOutput(rSide, 0)
-  end
-  if status[3] >= 80 then -- 85% is failure, we want to stop BEFORE that.
-    print("critical temps") -- TODO: Actual UI stuff
-    rs.setOutput(rSide, 0)
-  elseif status[3] >= 70 then -- 70% however is just radiation leaks.
-      print("radwarning") -- TODO: Actual UI stuff
-  end
-  rods = checkFuel(rods)
-  for k, v in pairs(rods) do
-    if rods[k].damage == 0 then
-      print("fuel depleted") -- TODO: Actual UI stuff
-      -- TODO: set activator to lock until deep fuel scan
+  else
+    if status[3] >= 80 then -- 85% is failure, we want to stop BEFORE that.
+      print("critical temps") -- TODO: Actual UI stuff
       rs.setOutput(rSide, 0)
+    elseif status[3] >= 70 then -- 70% however is just radiation leaks.
+        print("radwarning") -- TODO: Actual UI stuff
+    end
+    rods = checkFuel(rods)
+    for k, v in pairs(rods) do
+      if rods[k].damage == 0 then
+        print("fuel depleted") -- TODO: Actual UI stuff
+        -- TODO: set activator to lock until deep fuel scan
+        rs.setOutput(rSide, 0)
+      end
     end
   end
 end
@@ -132,6 +135,9 @@ end
 GUI.res(2)
 GUI.invertTouch(true)
 prog:start()
+
+rs.setOutput(rSide, 15)
+
 repeat
   reactorControl()
   capControl()

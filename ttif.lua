@@ -69,7 +69,7 @@ function ttif.save(tab, width, height, path)
   ArrayRemove(tab, function(t, i, j) -- Nuke all entries of that color
     local v = t[i]
     return (v.back ~= count[1][1]) end)
-  -- {width, height, mainBack, {back, x, y}, ...}
+  -- File should be setup as {{x, y, back}, ... , mainBack, width, height}
   local file = io.open(path, "w")
   file:write(serial.serialize(tab))
   file:close()
@@ -98,7 +98,7 @@ function ttif.draw(tab, x, y)
         currentBack = tab[p].back
         gpu.setBackground(tab[p].back)
       end
-      gpu.set(x + tab[p].x - 1, y + tab[p].y - 1, " ")
+      gpu.set(x + tab[p][1] - 1, y + tab[p][2] - 1, " ")
     end
   end
 end
