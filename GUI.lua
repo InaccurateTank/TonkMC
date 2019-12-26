@@ -889,7 +889,7 @@ local function lineShift(tab, line, letter, dir)
         result[#result + 1] = tab[i] or ""
         i = i + 1
       else
-        result[#result + 1] = tab[i] .. unicode.sub(tab[line], letter) or ""
+        result[#result + 1] = tab[i] .. (unicode.sub(tab[line], letter) or "")
         i = i + 2
       end
     until(i > #tab)
