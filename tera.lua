@@ -26,9 +26,9 @@ local prog = GUI.manager()
 prog.back = 0xcccccc
 
 -----Main Window-----
-local exit = GUI.newButton(prog, 80, 1, 1, 1, 0xff3333, 0xff3333, 0xffffff, 0xffffff, " ")
-local title = GUI.newLabel(prog, 1, 1, prog.width, 0x333399, 0xffffff, progName.." v:"..ver)
-title.align = "left"
+-- local exit = GUI.newButton(prog, 80, 1, 1, 1, 0xff3333, 0xff3333, 0xffffff, 0xffffff, " ")
+-- local title = GUI.newLabel(prog, 1, 1, prog.width, 0x333399, 0xffffff, progName.." v:"..ver)
+-- title.align = "left"
 
 -----Fuel Window-----
 
@@ -36,11 +36,11 @@ title.align = "left"
 
 -----Program Functions-----
 local function checkReactor()
-  if not component.get(reactor) then -- See if the reactor even exists
+  if not component.get(reactor.address) then -- See if the reactor even exists
     local rbuffer = rs.setOutput(rSide, 0) -- if not, shut off reactor
     -- TODO: some code to do UI stuff when this is happening
     for i = 1, 3 do -- Check if reactor exists again once per second for 3 seconds
-      if component.get(reactor) then
+      if component.get(reactor.address) then
         if rbuffer > 0 then -- Restart reactor if it was on
           rs.setOutput(rSide, 15)
         end
@@ -136,7 +136,7 @@ GUI.res(2)
 GUI.invertTouch(true)
 prog:start()
 
-rs.setOutput(rSide, 15)
+-- rs.setOutput(rSide, 15)
 
 repeat
   reactorControl()
