@@ -47,25 +47,26 @@ local function checkReactor()
         -- TODO: revert UI stuff
         break
       elseif i == 3 then
-        rs.setOutput(rSide, 0)
-        GUI.invertTouch(false)
-        prog:stop()
-        error("Reactor does not exist.  Please check the block formation for explosions.")
-        os.exit()
+        -- rs.setOutput(rSide, 0)
+        -- GUI.invertTouch(false)
+        -- prog:stop()
+        -- error("Reactor does not exist.  Please check the block formation for explosions.")
+        -- os.exit()
         return false
       end
       os.sleep(1)
     end
   end
-  local active = reactor.getReactorEUOutput()
-  local heat = reactor.getHeat()
-  local heatPercent = math.floor((math.min(heat, maxHeat) / maxHeat) * 100)
-  local coolent = tank.getFluidInTank(cSide)
-  local coolTank = coolent[1].amount
-  local coolPercent = math.floor((math.min(coolTank, 10000) / 10000) * 100)
-  local hotTank = coolent[2].amount
-  local hotPercent = math.floor((math.min(hotTank, 10000) / 10000) * 100)
-  return {active, heat, heatPercent, coolTank, coolPercent, hotTank, hotPercent}
+  -- local active = reactor.getReactorEUOutput()
+  -- local heat = reactor.getHeat()
+  -- local heatPercent = math.floor((math.min(heat, maxHeat) / maxHeat) * 100)
+  -- local coolent = tank.getFluidInTank(cSide)
+  -- local coolTank = coolent[1].amount
+  -- local coolPercent = math.floor((math.min(coolTank, 10000) / 10000) * 100)
+  -- local hotTank = coolent[2].amount
+  -- local hotPercent = math.floor((math.min(hotTank, 10000) / 10000) * 100)
+  -- return {active, heat, heatPercent, coolTank, coolPercent, hotTank, hotPercent}
+  return true
 end
 
 local function checkFuel(fuel, deep)
@@ -87,31 +88,36 @@ local function checkFuel(fuel, deep)
   return fuel
 end
 
-local function reactorControl()
-  local status = checkReactor()
-  if status[1] == 0 then
-    print("offline") -- TODO: Actual UI stuff
+local function reactorControl(status)
+  if not status then
+    return false
   else
-    print("online") -- TODO: Actual UI stuff
-  end
-  if overide then -- Manual shutoff
-    print("SCRAM engaged") -- TODO: Actual UI stuff
-    rs.setOutput(rSide, 0)
-  else
-    if status[3] >= 80 then -- 85% is failure, we want to stop BEFORE that.
-      print("critical temps") -- TODO: Actual UI stuff
-      rs.setOutput(rSide, 0)
-    elseif status[3] >= 70 then -- 70% however is just radiation leaks.
-        print("radwarning") -- TODO: Actual UI stuff
+    if status[1] == 0 then
+      print("offline") -- TODO: Actual UI stuff
+    else
+      print("online") -- TODO: Actual UI stuff
     end
-    rods = checkFuel(rods)
-    for k, v in pairs(rods) do
-      if rods[k].damage == 0 then
-        print("fuel depleted") -- TODO: Actual UI stuff
-        -- TODO: set activator to lock until deep fuel scan
+    print(status[3])
+    if overide then -- Manual shutoff
+      print("SCRAM engaged") -- TODO: Actual UI stuff
+      rs.setOutput(rSide, 0)
+    else
+      if status[3] >= 80 then -- 85% is failure, we want to stop BEFORE that.
+        print("critical temps") -- TODO: Actual UI stuff
         rs.setOutput(rSide, 0)
+      elseif status[3] >= 70 then -- 70% however is just radiation leaks.
+          print("radwarning") -- TODO: Actual UI stuff
+      end
+      rods = checkFuel(rods)
+      for k, v in pairs(rods) do
+        if rods[k].damage == 0 then
+          print("fuel depleted") -- TODO: Actual UI stuff
+          -- TODO: set activator to lock until deep fuel scan
+          rs.setOutput(rSide, 0)
+        end
       end
     end
+    return true
   end
 end
 
@@ -139,7 +145,24 @@ prog:start()
 -- rs.setOutput(rSide, 15)
 
 repeat
-  reactorControl()
-  capControl()
-  os.sleep(0.25)
+  if checkReactor() then
+    local status = {active = reactor.getReactorEUOutput(),
+      heat = reactor.getHeat(),
+      heatPercent = math.floor((math.min(reactor.getHeat(), maxHeat) / maxHeat) * 100),
+      coolent = tank.getFluidInTank(cSide),
+      coolTank = tank.getFluidInTank(cSide)[1].amount,
+      coolPercent = math.floor((math.min(tank.getFluidInTank(cSide)[1].amount, 10000) / 10000) * 100),
+      hotTank = tank.getFluidInTank(cSide)[2].amount,
+      hotPercent = math.floor((math.min(tank.getFluidInTank(cSide)[2].amount, 10000) / 10000) * 100)
+    }
+    reactorControl(status)
+    capControl()
+    os.sleep(0.25)
+  else
+    rs.setOutput(rSide, 0)
+    GUI.invertTouch(false)
+    prog:stop()
+    error("Reactor does not exist.  Please check the block formation for explosions.")
+    os.exit()
+  end
 until not prog.run
