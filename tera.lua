@@ -11,15 +11,15 @@ local thread = require("thread")
 
 local ver = 1.0
 local progName = "/tank/tera"
+
 local reactor = component.reactor_redstone_port
 local inv = component.inventory_controller
 local tank = component.tank_controller
 local rs = component.redstone
 local cap = nil
-local cSide = sides.east
-local rSide = sides.down
+local cSide = sides.east -- Reactor Tank/Inv Side
+local rSide = sides.down -- Reactor Redstone Side
 
-local maxHeat = reactor.getMaxHeat()
 local rods = {}
 local overide = false
 local prog = GUI.manager()
@@ -39,34 +39,23 @@ local function checkReactor()
   if not component.get(reactor.address) then -- See if the reactor even exists
     local rbuffer = rs.setOutput(rSide, 0) -- if not, shut off reactor
     -- TODO: some code to do UI stuff when this is happening
-    for i = 1, 3 do -- Check if reactor exists again once per second for 3 seconds
-      if component.get(reactor.address) then
+    for i = 1, 5 do -- Check if reactor exists again once per second for 5 seconds
+      if component.get(reactor.address) ~= nil then
         if rbuffer > 0 then -- Restart reactor if it was on
           rs.setOutput(rSide, 15)
         end
-        -- TODO: revert UI stuff
-        break
-      elseif i == 3 then
-        -- rs.setOutput(rSide, 0)
-        -- GUI.invertTouch(false)
-        -- prog:stop()
-        -- error("Reactor does not exist.  Please check the block formation for explosions.")
-        -- os.exit()
+        -- TODO: UI stuff
+        return true
+      elseif i == 5 then -- Has those 5 seconds elapsed
         return false
+      else
+        i = i + 1
+        os.sleep(1)
       end
-      os.sleep(1)
     end
+  else
+    return true
   end
-  -- local active = reactor.getReactorEUOutput()
-  -- local heat = reactor.getHeat()
-  -- local heatPercent = math.floor((math.min(heat, maxHeat) / maxHeat) * 100)
-  -- local coolent = tank.getFluidInTank(cSide)
-  -- local coolTank = coolent[1].amount
-  -- local coolPercent = math.floor((math.min(coolTank, 10000) / 10000) * 100)
-  -- local hotTank = coolent[2].amount
-  -- local hotPercent = math.floor((math.min(hotTank, 10000) / 10000) * 100)
-  -- return {active, heat, heatPercent, coolTank, coolPercent, hotTank, hotPercent}
-  return true
 end
 
 local function checkFuel(fuel, deep)
@@ -89,35 +78,30 @@ local function checkFuel(fuel, deep)
 end
 
 local function reactorControl(status)
-  if not status then
-    return false
+  if status.active == 0 then
+    -- TODO: Actual UI stuff, Reactor Offline
   else
-    if status[1] == 0 then
-      print("offline") -- TODO: Actual UI stuff
-    else
-      print("online") -- TODO: Actual UI stuff
-    end
-    print(status[3])
-    if overide then -- Manual shutoff
-      print("SCRAM engaged") -- TODO: Actual UI stuff
+    -- TODO: Actual UI stuff, Reactor Online
+  end
+  --print(status[3])
+  if overide then -- Manual shutoff
+    print("SCRAM engaged") -- TODO: Actual UI stuff
+    rs.setOutput(rSide, 0)
+  else
+    if status.heatPercent >= 80 then -- 85% is failure, we want to stop BEFORE that.
+      print("critical temps") -- TODO: Actual UI stuff, Melting
       rs.setOutput(rSide, 0)
-    else
-      if status[3] >= 80 then -- 85% is failure, we want to stop BEFORE that.
-        print("critical temps") -- TODO: Actual UI stuff
+    elseif status.heatPercent >= 70 then -- 70% however is just radiation leaks.
+        print("radwarning") -- TODO: Actual UI stuff, Radiation
+    end
+    rods = checkFuel(rods)
+    for k, v in pairs(rods) do
+      if rods[k].damage == 0 then
+        print("fuel depleted") -- TODO: Actual UI stuff, Fuel Depleted
+        -- TODO: set activator to lock until deep fuel scan
         rs.setOutput(rSide, 0)
-      elseif status[3] >= 70 then -- 70% however is just radiation leaks.
-          print("radwarning") -- TODO: Actual UI stuff
-      end
-      rods = checkFuel(rods)
-      for k, v in pairs(rods) do
-        if rods[k].damage == 0 then
-          print("fuel depleted") -- TODO: Actual UI stuff
-          -- TODO: set activator to lock until deep fuel scan
-          rs.setOutput(rSide, 0)
-        end
       end
     end
-    return true
   end
 end
 
@@ -142,19 +126,20 @@ GUI.res(2)
 GUI.invertTouch(true)
 prog:start()
 
--- rs.setOutput(rSide, 15)
+rods = checkFuel(rods, true)
 
 repeat
   if checkReactor() then
     local status = {active = reactor.getReactorEUOutput(),
       heat = reactor.getHeat(),
-      heatPercent = math.floor((math.min(reactor.getHeat(), maxHeat) / maxHeat) * 100),
+      heatPercent = math.floor((math.min(reactor.getHeat(), reactor.getMaxHeat()) / reactor.getMaxHeat()) * 100),
       coolent = tank.getFluidInTank(cSide),
       coolTank = tank.getFluidInTank(cSide)[1].amount,
       coolPercent = math.floor((math.min(tank.getFluidInTank(cSide)[1].amount, 10000) / 10000) * 100),
       hotTank = tank.getFluidInTank(cSide)[2].amount,
       hotPercent = math.floor((math.min(tank.getFluidInTank(cSide)[2].amount, 10000) / 10000) * 100)
     }
+    rods = checkFuel(rods)
     reactorControl(status)
     capControl()
     os.sleep(0.25)
