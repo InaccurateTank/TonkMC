@@ -12,7 +12,7 @@ local thread = require("thread")
 local ver = 1.0
 local progName = "/tank/tera"
 
-local reactor = component.reactor_redstone_port
+local reactor = component.proxy("e75b2fb8-c3c4-466c-ae7e-1d8450d6fad3")
 local inv = component.proxy("001188a5-1236-436e-9838-a54943cbedc1")
 local tank = component.proxy("2761ed08-1aa9-49d7-bad2-581f23794cf3")
 local rs = component.proxy("a5de26a1-7e24-461d-8a15-d02ced226ece")
@@ -36,34 +36,34 @@ local function close(e)
   os.exit()
 end
 
-local function checkReactor()
-  if not component.get(component.reactor_redstone_port.address) then -- See if the reactor even exists
+local function errChk(comp, func)
+  if not component.get(comp.address) then -- See if the reactor even exists
     local rbuffer = rs.setOutput(rSide, 0) -- if not, shut off reactor
     -- TODO: some code to do UI stuff when this is happening
     for i = 1, 5 do -- Check if reactor exists again once per second for 5 seconds
-      if component.get(component.reactor_redstone_port.address) then
-        print("?")
+      if component.get(comp.address) then -- IT LIVES
         if rbuffer > 0 then -- Restart reactor if it was on
           rs.setOutput(rSide, 15)
         end
         -- TODO: UI stuff
-        return true
+        if func then
+          return func
+        else
+          return true
+        end
       elseif i == 5 then -- Has those 5 seconds elapsed
+        close(1)
         return false
       else
         os.sleep(1)
       end
     end
-  else
-    return true
-  end
-end
-
-local function errChk(comp, fun)
-  if checkReactor(comp) then
-    return fun
-  else
-    close(1)
+  else -- It always existed you dumbass
+    if func then
+      return func
+    else
+      return true
+    end
   end
 end
 
@@ -78,6 +78,7 @@ end
 
 -----Program Functions-----
 local function checkFuel(fuel, deep) -- Checks reactor fuel rods
+  errChk(inv)
   if deep then -- Deep scan checks the entire reactor inventory.  Use sparingly.
     fuel = {}
     for i = 1, 54 do
@@ -91,8 +92,8 @@ local function checkFuel(fuel, deep) -- Checks reactor fuel rods
     end
   else -- Quick scan checks only the slots that had rods in them last.
     for k, v in pairs(fuel) do
-      fuel[k] = inv.getStackInSlot(cSide, k)
       print(k)
+      fuel[k] = inv.getStackInSlot(cSide, k)
     end
   end
   return fuel
@@ -145,13 +146,12 @@ prog:start()
 rods = checkFuel(rods, true)
 
 repeat
-  if checkReactor() then
-    local a = reactor.getReactorEUOutput()
-    local h = reactor.getHeat()
-    local mH = reactor.getMaxHeat()
-    local t = tank.getFluidInTank(cSide)
+  if errChk(reactor) then
+    local h = errChk(reactor, reactor.getHeat())
+    local mH = errChk(reactor, reactor.getMaxHeat())
+    local t = errChk(tank, tank.getFluidInTank(cSide))
     local status = {
-      active = a,
+      active = errChk(reactor, reactor.getReactorEUOutput()),
       heat = h,
       heatPercent = math.floor((math.min(h, mH) / mH) * 100),
       coolent = t,
@@ -160,7 +160,7 @@ repeat
       hotTank = t[2].amount,
       hotPercent = math.floor((math.min(t[2].amount, 10000) / 10000) * 100)
     }
-    print(status.active)
+    print("cycle")
     rods = checkFuel(rods)
     reactorControl(status)
     capControl()
