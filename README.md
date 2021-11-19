@@ -8,4 +8,4 @@ OpenComputers
 * **ttif.lua** TankTech Image Format.  AKA shitty table files for storing complex pixel data.
 
 ComputerCraft
-* **GUI-R.lua:** ""Redux"" of the OpenComputers GUI API.  Built for CC: Tweaked on 1.16
+* **fuckbarrels.lua** Automates the "Test of Patience" challenge in Create Above and Beyond.
