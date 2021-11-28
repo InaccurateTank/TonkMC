@@ -1,30 +1,30 @@
 --[[
-/tank/crawl Ver:2.0
-Written by Tankman
+/tank/crawl Ver:2.1
+Written by Tank
 Contains ants
 
 Changelog:
-  Initial release with GUI 2.0
+  Use GUI.res
+  Removed term and commands
 ]]
 
 local event = require("event")
 local GUI = require("GUI")
 local fs = require("filesystem")
-local term = require("term")
 
-local VER = 2.0
-local PROG_NAME = "/tank/crawl"
-local EDIT = "shedit" -- Edit program used
+local ver = 2.1
+local progName = "/tank/crawl"
+local edit = "edit" -- Edit program used
+
 local fspath = "//home/" -- Default file path
-
-local copybuffer = {} -- [1] 1 is copy, 2 is paste.  [2] File Path for copying.
+local copybuffer = {} -- [1] 1 is copy, 2 is cut.  [2] File Path for copying.
 local delconf = false -- Confirmation for deleting files
 local prog = GUI.manager()
 prog.back = 0xcccccc
 
 -----Main Window-----
 local exit = GUI.newButton(prog, 80, 1, 1, 1, 0xff3333, 0xff3333, 0xffffff, 0xffffff, " ")
-local title = GUI.newLabel(prog, 1, 1, prog.width, 0x333399, 0xffffff, PROG_NAME.." v:"..VER)
+local title = GUI.newLabel(prog, 1, 1, prog.width, 0x333399, 0xffffff, progName.." v:"..ver)
 title.align = "left"
 
 GUI.newLabel(prog, 3, 3, 17, prog.back, 0x000000, "[Folder Path]", "-", 0x000000)
@@ -130,19 +130,19 @@ local function treeUp(path, folder)
   return path
 end
 
-local function fixName(name)
-  local i = 0
-  local old = name
-  while true do
-    if (fs.exists(name)) then
-      i = i + 1
-      name = old.."("..i..")"
-    else
-      break
-    end
-  end
-  return name
-end
+-- local function fixName(name)
+--   local i = 0
+--   local old = name
+--   while true do
+--     if (fs.exists(name)) then
+--       i = i + 1
+--       name = old.."("..i..")"
+--     else
+--       break
+--     end
+--   end
+--   return name
+-- end
 
 local function appendName(name) -- takes file path, appends a number if neccesary
   local dir, n1, n2 = name:match("(.-)([^/]-)%.?([^%./]-)$") -- seperate components
@@ -268,7 +268,6 @@ end
 -----Common Commands-----
 local function close()
   prog:stop()
-  term.setCursor(1, 1)
   os.exit()
 end
 
@@ -299,7 +298,7 @@ end
 local function edit()
   GUI.resetBack()
   prog.togglePause()
-  os.execute(EDIT.." \""..fspath..fileList.entries[fileList.selected].text.."\"")
+  os.execute(edit.." \""..fspath..fileList.entries[fileList.selected].text.."\"")
   prog.togglePause()
   prog:draw()
 end
@@ -351,7 +350,7 @@ local function paste()
 end
 
 local function new()
-  fileList.disabled = true
+  -- fileList.disabled = true
   dirList.disabled = true
   newGUI.disabled = false
   folderInput.text[1] = fspath
@@ -385,7 +384,7 @@ local function confirm()
   txtRadio.active = false
   luaRadio.active = false
   naRadio.active = false
-  fileList.disabled = false
+  -- fileList.disabled = false
   dirList.disabled = false
   newGUI.disabled = true
   listPopulate()
@@ -440,7 +439,7 @@ function cancelButton:onTouch()
   txtRadio.active = false
   luaRadio.active = false
   naRadio.active = false
-  fileList.disabled = false
+  -- fileList.disabled = false
   dirList.disabled = false
   newGUI.disabled = true
   fileList:draw()
@@ -579,6 +578,7 @@ end
 
 
 listPopulate()
+GUI.res(2)
 prog:start()
 repeat
   os.sleep(0.25)
