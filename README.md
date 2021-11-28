@@ -9,3 +9,5 @@ OpenComputers
 
 ComputerCraft
 * **fuckbarrels.lua** Automates the "Test of Patience" challenge in Create Above and Beyond.
+* **GUI-R.lua** ComputerCraft redux of GUI.lua.
+* **elevator.lua** Dynamic Create multi-floor elevator controller.
