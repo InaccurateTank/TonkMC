@@ -97,11 +97,11 @@ if mode ~= "car" then
   callButton = GUI.newButton(prog, 5, 8, 9, 5, colors.lightGray, colors.black, colors.lime, colors.black, "Call")
   callButton.onPoke = function()
     local current = findFloor()
-    if current == brakeFloor then
-      redstone.setOutput(doorSide, true)
-      os.sleep(1)
-      redstone.setOutput(doorSide, false)
-    elseif mode == "control" then
+    -- if current == brakeFloor then
+    --   redstone.setOutput(doorSide, true)
+    --   os.sleep(1)
+    --   redstone.setOutput(doorSide, false)
+    if mode == "control" then
       if current < brakeFloor then
         redstone.setBundledOutput(bundleSide, colors.combine(conTab.up))
         os.sleep(1)
@@ -177,7 +177,10 @@ local function main()
       end
     elseif parsed[1] == "brake" and mode == "control" then
       parsed[2] = tonumber(parsed[2])
-      if parsed[2] < current then
+      parsed[3] = tonumber(parsed[3])
+      if parsed[2] == current then
+        modem.transmit(reply, reply, "control open")
+      elseif parsed[2] < current then
         redstone.setBundledOutput(bundleSide, colors.combine(conTab.up))
         modem.transmit(reply, reply, "control up "..parsed[2])
         os.sleep(1)
