@@ -51,9 +51,7 @@ local upRS = "back"
 local downRS = "right"
 
 local mode, brakeFloor = ...
-if brakeFloor ~= nil then
-  brakeFloor = brakeFloor + 0
-end
+brakeFloor = tonumber(brakeFloor)
 local conTab = {
   up = colors.white,
   down = colors.black,
@@ -158,6 +156,7 @@ local function modemListen()
     local parsed = split(mes)
     local current = findFloor()
     if parsed[1] == "car" and mode == "control" then
+      parsed[2] = tonumber(parsed[2])
       if parsed[2] == current then
         if parsed[2] == brakeFloor then
           redstone.setOutput(doorSide, true)
@@ -178,6 +177,7 @@ local function modemListen()
         redstone.setBundledOutput(bundleSide, colors.subtract(conTab.down))
       end
     elseif parsed[1] == "brake" and mode == "control" then
+      parsed[2] = tonumber(parsed[2])
       if parsed[2] > current then
         redstone.setBundledOutput(bundleSide, colors.combine(conTab.up))
         modem.transmit(reply, reply, "control up "..parsed[2])
@@ -195,6 +195,7 @@ local function modemListen()
         os.sleep(1)
         redstone.setOutput(doorSide, false)
       elseif parsed[2] == "up" and parsed[3] == brakeFloor then
+        parsed[3] = tonumber(parsed[3])
         redstone.setOutput(upRS, true)
         local ver = true
         while ver do
@@ -205,6 +206,7 @@ local function modemListen()
           end
         end
       elseif parsed[2] == "down" and parsed[3] == brakeFloor then
+        parsed[3] = tonumber(parsed[3])
         redstone.setOutput(downRS, true)
         local ver = true
         while ver do
@@ -245,7 +247,7 @@ if mode == "car" then
 elseif mode == "control" or mode == "brake" then
   if brakeFloor ~= nil then
     init()
-    prog:start(main, modemListen)
+    prog:start(modemListen, main)
   else
     print("Client modes other than car require a brake floor")
   end
