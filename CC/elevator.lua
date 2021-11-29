@@ -105,11 +105,11 @@ if mode ~= "car" then
       if current > brakeFloor then
         redstone.setBundledOutput(bundleSide, colors.combine(conTab.up))
         os.sleep(1)
-        redstone.setBundledOutput(bundleSide, colors.subtract(redstone.getBundledInput(rSide), conTab.up))
+        redstone.setBundledOutput(bundleSide, colors.subtract(redstone.getBundledInput(bundleSide), conTab.up))
       elseif current < brakeFloor then
         redstone.setBundledOutput(bundleSide, colors.combine(conTab.down))
         os.sleep(1)
-        redstone.setBundledOutput(bundleSide, colors.subtract(redstone.getBundledInput(rSide), conTab.down))
+        redstone.setBundledOutput(bundleSide, colors.subtract(redstone.getBundledInput(bundleSide), conTab.down))
       end
     elseif mode == "brake" then
       modem.transmit(30, 30, "brake "..brakeFloor)
@@ -169,12 +169,12 @@ local function main()
         redstone.setBundledOutput(bundleSide, colors.combine(conTab.up))
         modem.transmit(reply, reply, "control up "..parsed[2])
         os.sleep(1)
-        redstone.setBundledOutput(bundleSide, colors.subtract(redstone.getBundledInput(rSide), conTab.up))
+        redstone.setBundledOutput(bundleSide, colors.subtract(redstone.getBundledInput(bundleSide), conTab.up))
       elseif parsed[2] > current then
         redstone.setBundledOutput(bundleSide, colors.combine(conTab.down))
         modem.transmit(reply, reply, "control down "..parsed[2])
         os.sleep(1)
-        redstone.setBundledOutput(bundleSide, colors.subtract(redstone.getBundledInput(rSide), conTab.down))
+        redstone.setBundledOutput(bundleSide, colors.subtract(redstone.getBundledInput(bundleSide), conTab.down))
       end
 
     elseif parsed[1] == "brake" and mode == "control" then
@@ -186,12 +186,12 @@ local function main()
         redstone.setBundledOutput(bundleSide, colors.combine(conTab.up))
         modem.transmit(reply, reply, "control up "..parsed[2])
         os.sleep(1)
-        redstone.setBundledOutput(bundleSide, colors.subtract(redstone.getBundledInput(rSide), conTab.up))
+        redstone.setBundledOutput(bundleSide, colors.subtract(redstone.getBundledInput(bundleSide), conTab.up))
       elseif parsed[2] > current then
         redstone.setBundledOutput(bundleSide, colors.combine(conTab.down))
         modem.transmit(30, 1, "control down "..parsed[2])
         os.sleep(1)
-        redstone.setBundledOutput(bundleSide, colors.subtract(redstone.getBundledInput(rSide), conTab.down))
+        redstone.setBundledOutput(bundleSide, colors.subtract(redstone.getBundledInput(bundleSide), conTab.down))
       end
 
     elseif parsed[1] == "control" and mode == "brake" then
