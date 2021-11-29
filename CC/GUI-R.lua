@@ -337,10 +337,10 @@ function GUI.init(back, loc)
   FOREGROUND = LOCATION.getTextColor()
   MANAGER = GUI.newContainer(1, 1, SCREEN_WIDTH, SCREEN_HEIGHT, back)
   MANAGER.run = true
-  function MANAGER:start(...)
+  function MANAGER:start(fn)
     self:draw()
-    if ... then
-      parallel.waitForAll(..., events)
+    if fn then
+      parallel.waitForAll(fn, events)
     else
       events()
     end

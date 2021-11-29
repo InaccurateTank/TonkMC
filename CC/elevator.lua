@@ -116,27 +116,18 @@ if mode ~= "car" then
     end
   end
 end
-local elInd
+-- local elInd
 
-local function init()
-  for i=1,#conTab do
-    if redstone.testBundledInput(bundleSide, conTab[i].color) then
-      elInd = GUI.newBox(prog, 3, conTab[i].pos, 1, colors.white)
-      prog:moveToFront(elInd)
-      break
-    end
-  end
-  for i=1,#conTab do
-    GUI.newBox(prog, 2, conTab[i].pos, 1, 2, conTab[i].color)
-    if mode == "car" then
-      conTab[i].button = GUI.newButton(prog, 5, conTab[i].pos, 9, 2, colors.lightGray, colors.black, colors.lime, colors.black, "Floor " .. i)
-      conTab[i].button.onPoke = function(self)
-        modem.transmit(20, 30, "car "..i)
-      end
-      conTab[i].button.disabled = true
-    end
-  end
-end
+-- local function init()
+  -- for i=1,#conTab do
+  --   if redstone.testBundledInput(bundleSide, conTab[i].color) then
+  --     elInd = GUI.newBox(prog, 3, conTab[i].pos, 1, colors.white)
+  --     prog:moveToFront(elInd)
+  --     break
+  --   end
+  -- end
+
+-- end
 
 local function doorToggle()
   for i=1, #conTab do
@@ -150,7 +141,15 @@ local function doorToggle()
   end
 end
 
-local function modemListen()
+local function main()
+  if mode == "car" then
+    doorToggle()
+    modem.open(20)
+  else
+    modem.open(20)
+    modem.open(30)
+  end
+
   repeat
     local _, _, chan, reply, mes, _ = os.pullEvent("modem_message")
     local parsed = split(mes)
@@ -219,35 +218,41 @@ local function modemListen()
       end
     end
   until not prog.run
-end
-
-local function main()
-  if mode == "car" then
-    doorToggle()
-    modem.open(20)
-  else
-    modem.open(20)
-    modem.open(30)
-  end
-  repeat
-    local current = findFloor()
-    if brakeFloor ~= current then
-      GUI.drawBox(3, elInd.y, 1, 2, colors.lightGray, monitor)
-      elInd.y = conTab[current].pos
-      elInd:draw()
-    end
-    os.sleep(0.25)
-  until not prog.run
   modem.closeAll()
 end
 
+-- local function main()
+
+--   repeat
+--     local current = findFloor()
+--     if brakeFloor ~= current then
+--       GUI.drawBox(3, elInd.y, 1, 2, colors.lightGray, monitor)
+--       elInd.y = conTab[current].pos
+--       elInd:draw()
+--     end
+--     os.sleep(0.25)
+--   until not prog.run
+  
+-- end
+
+
+for i=1,#conTab do
+  GUI.newBox(prog, 2, conTab[i].pos, 1, 2, conTab[i].color)
+  if mode == "car" then
+    conTab[i].button = GUI.newButton(prog, 5, conTab[i].pos, 9, 2, colors.lightGray, colors.black, colors.lime, colors.black, "Floor " .. i)
+    conTab[i].button.onPoke = function(self)
+      modem.transmit(20, 30, "car "..i)
+    end
+    conTab[i].button.disabled = true
+  end
+end
 if mode == "car" then
   init()
   prog:start(main)
 elseif mode == "control" or mode == "brake" then
   if brakeFloor ~= nil then
     init()
-    prog:start(modemListen, main)
+    prog:start(main)
   else
     print("Client modes other than car require a brake floor")
   end
