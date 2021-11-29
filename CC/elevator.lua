@@ -158,7 +158,6 @@ local function modemListen()
     local parsed = split(mes)
     local current = findFloor()
     if parsed[1] == "car" and mode == "control" then
-      print(mes)
       if parsed[2] == current then
         if parsed[2] == brakeFloor then
           redstone.setOutput(doorSide, true)
@@ -225,6 +224,7 @@ local function main()
     doorToggle()
     modem.open(20)
   else
+    modem.open(20)
     modem.open(30)
   end
   repeat
