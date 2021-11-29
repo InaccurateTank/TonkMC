@@ -269,8 +269,8 @@ end
 function button:poke(x, y)
   if hitbox(self, x, y, not self.disabled) then
     self.pressed = not self.pressed
-    self.onPoke()
     self:draw()
+    self.onPoke()
     if not self.switch then
       os.sleep(0.10)
       self.pressed = not self.pressed
@@ -306,8 +306,8 @@ function GUI.newButton(parent, x, y, width, height, back, fore, backPressed, for
       text = forePressed
     },
     disabled = {
-      background = 0x333333,
-      text = 0xcccccc
+      background = colors.black,
+      text = colors.white
     }
   }
   obj.text = text or ""
@@ -337,10 +337,10 @@ function GUI.init(back, loc)
   FOREGROUND = LOCATION.getTextColor()
   MANAGER = GUI.newContainer(1, 1, SCREEN_WIDTH, SCREEN_HEIGHT, back)
   MANAGER.run = true
-  function MANAGER:start(fn)
+  function MANAGER:start(...)
     self:draw()
-    if fn then
-      parallel.waitForAny(fn, events)
+    if ... then
+      parallel.waitForAll(..., events)
     else
       events()
     end
