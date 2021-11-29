@@ -247,11 +247,11 @@ for i=1,#conTab do
   end
 end
 if mode == "car" then
-  init()
+  -- init()
   prog:start(main)
 elseif mode == "control" or mode == "brake" then
   if brakeFloor ~= nil then
-    init()
+    -- init()
     prog:start(main)
   else
     print("Client modes other than car require a brake floor")
