@@ -116,6 +116,16 @@ if mode ~= "car" then
     end
   end
 end
+for i=1,#conTab do
+  GUI.newBox(prog, 2, conTab[i].pos, 1, 2, conTab[i].color)
+  if mode == "car" then
+    conTab[i].button = GUI.newButton(prog, 5, conTab[i].pos, 9, 2, colors.lightGray, colors.black, colors.lime, colors.black, "Floor " .. i)
+    conTab[i].button.onPoke = function(self)
+      modem.transmit(20, 30, "car "..i)
+    end
+    conTab[i].button.disabled = true
+  end
+end
 
 local function doorToggle()
   for i=1, #conTab do
@@ -151,7 +161,7 @@ local function main()
           os.sleep(1)
           redstone.setOutput(doorSide, false)
         else
-          modem.transmit(reply, reply, "control open")
+          modem.transmit(reply, reply, "control open "..parsed[2])
         end
       elseif parsed[2] < current then
         redstone.setBundledOutput(bundleSide, colors.combine(conTab.up))
@@ -167,7 +177,6 @@ local function main()
 
     elseif parsed[1] == "brake" and mode == "control" then
       parsed[2] = tonumber(parsed[2])
-      parsed[3] = tonumber(parsed[3])
       if parsed[2] < current then
         redstone.setBundledOutput(bundleSide, colors.combine(conTab.up))
         modem.transmit(reply, reply, "control up "..parsed[2])
@@ -210,21 +219,13 @@ local function main()
         end
       end
     end
+    
     os.sleep(0.25)
   until not prog.run
   modem.closeAll()
 end
 
-for i=1,#conTab do
-  GUI.newBox(prog, 2, conTab[i].pos, 1, 2, conTab[i].color)
-  if mode == "car" then
-    conTab[i].button = GUI.newButton(prog, 5, conTab[i].pos, 9, 2, colors.lightGray, colors.black, colors.lime, colors.black, "Floor " .. i)
-    conTab[i].button.onPoke = function(self)
-      modem.transmit(20, 30, "car "..i)
-    end
-    conTab[i].button.disabled = true
-  end
-end
+
 if mode == "car" then
   prog:start(main)
 elseif mode == "control" or mode == "brake" then
