@@ -95,18 +95,18 @@ GUI.newBox(prog, 3, 2, 1, 17, colors.lightGray)
 local callButton
 if mode ~= "car" then
   callButton = GUI.newButton(prog, 5, 8, 9, 5, colors.lightGray, colors.black, colors.lime, colors.black, "Call")
-  callButton.onPoke = function(self)
+  callButton.onPoke = function()
     local current = findFloor()
     if current == brakeFloor then
       redstone.setOutput(doorSide, true)
       os.sleep(1)
       redstone.setOutput(doorSide, false)
     elseif mode == "control" then
-      if current > brakeFloor then
+      if current < brakeFloor then
         redstone.setBundledOutput(bundleSide, colors.combine(conTab.up))
         os.sleep(1)
         redstone.setBundledOutput(bundleSide, colors.subtract(conTab.up))
-      elseif current < brakeFloor then
+      elseif current > brakeFloor then
         redstone.setBundledOutput(bundleSide, colors.combine(conTab.down))
         os.sleep(1)
         redstone.setBundledOutput(bundleSide, colors.subtract(conTab.down))
@@ -165,12 +165,12 @@ local function modemListen()
         else
           modem.transmit(reply, reply, "control open")
         end
-      elseif parsed[2] > current then
+      elseif parsed[2] < current then
         redstone.setBundledOutput(bundleSide, colors.combine(conTab.up))
         modem.transmit(reply, reply, "control up "..parsed[2])
         os.sleep(1)
         redstone.setBundledOutput(bundleSide, colors.subtract(conTab.up))
-      elseif parsed[2] < current then
+      elseif parsed[2] > current then
         redstone.setBundledOutput(bundleSide, colors.combine(conTab.down))
         modem.transmit(reply, reply, "control down "..parsed[2])
         os.sleep(1)
@@ -178,12 +178,12 @@ local function modemListen()
       end
     elseif parsed[1] == "brake" and mode == "control" then
       parsed[2] = tonumber(parsed[2])
-      if parsed[2] > current then
+      if parsed[2] < current then
         redstone.setBundledOutput(bundleSide, colors.combine(conTab.up))
         modem.transmit(reply, reply, "control up "..parsed[2])
         os.sleep(1)
         redstone.setBundledOutput(bundleSide, colors.subtract(conTab.up))
-      elseif parsed[2] < current then
+      elseif parsed[2] > current then
         redstone.setBundledOutput(bundleSide, colors.combine(conTab.down))
         modem.transmit(30, 1, "control down "..parsed[2])
         os.sleep(1)
