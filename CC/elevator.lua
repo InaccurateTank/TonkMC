@@ -133,7 +133,6 @@ local function init()
     if mode == "car" then
       conTab[i].button = GUI.newButton(prog, 5, conTab[i].pos, 9, 2, colors.lightGray, colors.black, colors.lime, colors.black, "Floor " .. i)
       conTab[i].button.onPoke = function(self)
-        print(i)
         modem.transmit(20, 30, "car "..i)
       end
       conTab[i].button.disabled = true
@@ -159,6 +158,7 @@ local function modemListen()
     local parsed = split(mes)
     local current = findFloor()
     if parsed[1] == "car" and mode == "control" then
+      print(mes)
       if parsed[2] == current then
         if parsed[2] == brakeFloor then
           redstone.setOutput(doorSide, true)
