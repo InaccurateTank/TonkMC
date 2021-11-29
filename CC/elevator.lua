@@ -180,9 +180,7 @@ local function main()
     elseif parsed[1] == "brake" and mode == "control" then
       parsed[2] = tonumber(parsed[2])
       parsed[3] = tonumber(parsed[3])
-      if parsed[2] == current then
-        modem.transmit(reply, reply, "control open")
-      elseif parsed[2] < current then
+      if parsed[2] < current then
         redstone.setBundledOutput(bundleSide, colors.combine(conTab.up))
         modem.transmit(reply, reply, "control up "..parsed[2])
         os.sleep(1)
@@ -195,12 +193,8 @@ local function main()
       end
 
     elseif parsed[1] == "control" and mode == "brake" then
-      if parsed[2] == "open" then
-        redstone.setOutput(doorSide, true)
-        os.sleep(1)
-        redstone.setOutput(doorSide, false)
-      elseif parsed[2] == "up" and parsed[3] == brakeFloor then
-        parsed[3] = tonumber(parsed[3])
+      parsed[3] = tonumber(parsed[3])
+      if parsed[2] == "up" and parsed[3] == brakeFloor then
         redstone.setOutput(upRS, true)
         local ver = true
         while ver do
@@ -211,7 +205,6 @@ local function main()
           end
         end
       elseif parsed[2] == "down" and parsed[3] == brakeFloor then
-        parsed[3] = tonumber(parsed[3])
         redstone.setOutput(downRS, true)
         local ver = true
         while ver do
