@@ -43,8 +43,8 @@ end
 
 local GUI = require("GUI-R")
 
-local modem = partCheck("top", "modem") or error("Computer missing top side modem.")
-local monitor = partCheck("right", "monitor") or error("Computer missing right side monitor.")
+local modem = partCheck("top", "modem") or error("Computer missing modem!")
+local monitor = partCheck("right", "monitor") or error("Computer missing monitor!")
 local bundleSide = "left"
 local doorSide = "left"
 local upRS = "back"
@@ -231,8 +231,12 @@ elseif mode == "control" or mode == "brake" then
   if brakeFloor ~= nil then
     prog:start(main)
   else
-    print("Client modes other than car require a brake floor")
+    print("Client modes other than car require a floor number!")
   end
 else
   print("Please select valid client mode")
+  print("Valid client modes are:")
+  print("- car")
+  print("- brake [FLOOR NUMBER]")
+  print("- control [FLOOR NUMBER]")
 end
