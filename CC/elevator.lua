@@ -219,8 +219,7 @@ local function main()
         end
       end
     end
-    
-    os.sleep(0.25)
+
   until not prog.run
   modem.closeAll()
 end
