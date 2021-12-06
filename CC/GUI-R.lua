@@ -231,6 +231,18 @@ end
 --[[
   Button Object:
     Creates a pressable button.  Button has no functionality until manually assigned.
+
+  Required Inputs:
+    parent                   - The objects parent container.
+    x, y, width, height      - Self Explanitory.
+    back, fore               - The background and text colors.
+    backPressed, forePressed - The background and text colors for when the button is pressed.
+    text                     - Text contents.
+
+  Optional Variables:
+    disabled - Disabled buttons still get rendered, they just can no longer accept inputs.  This is generally "good enough".
+    switch   - Turns the button into a toggle switch.  Like a fat radio button.
+    theme    - Currently only accepts "Rounded" which slices off the corners.
 ]]--
 local button = {}
 button.disabled = false
@@ -269,8 +281,8 @@ end
 function button:poke(x, y)
   if hitbox(self, x, y, not self.disabled) then
     self.pressed = not self.pressed
-    self.onPoke()
     self:draw()
+    self.onPoke()
     if not self.switch then
       os.sleep(0.10)
       self.pressed = not self.pressed
@@ -306,8 +318,8 @@ function GUI.newButton(parent, x, y, width, height, back, fore, backPressed, for
       text = forePressed
     },
     disabled = {
-      background = 0x333333,
-      text = 0xcccccc
+      background = colors.black,
+      text = colors.white
     }
   }
   obj.text = text or ""
@@ -340,7 +352,7 @@ function GUI.init(back, loc)
   function MANAGER:start(fn)
     self:draw()
     if fn then
-      parallel.waitForAny(fn, events)
+      parallel.waitForAll(fn, events)
     else
       events()
     end
