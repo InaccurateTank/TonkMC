@@ -231,6 +231,18 @@ end
 --[[
   Button Object:
     Creates a pressable button.  Button has no functionality until manually assigned.
+
+  Required Inputs:
+    parent                   - The objects parent container.
+    x, y, width, height      - Self Explanitory.
+    back, fore               - The background and text colors.
+    backPressed, forePressed - The background and text colors for when the button is pressed.
+    text                     - Text contents.
+
+  Optional Variables:
+    disabled - Disabled buttons still get rendered, they just can no longer accept inputs.  This is generally "good enough".
+    switch   - Turns the button into a toggle switch.  Like a fat radio button.
+    theme    - Currently only accepts "Rounded" which slices off the corners.
 ]]--
 local button = {}
 button.disabled = false
