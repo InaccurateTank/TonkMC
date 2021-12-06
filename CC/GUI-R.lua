@@ -122,6 +122,11 @@ end
 --[[
   Container Object:
     The backbone of the whole API.  Contains other GUI objects.  Can be nested infinitely.
+
+  Arguments:
+    x, y, width, height - Self Explanitory.
+    back                - Container background color.
+    parent [OPTIONAL]   - The containers parent container.  Unless you're making an entirely new program handler, you probably want this?
 ]]--
 local container = {}
 container.children = {}
@@ -232,14 +237,14 @@ end
   Button Object:
     Creates a pressable button.  Button has no functionality until manually assigned.
 
-  Required Inputs:
+  Arguments:
     parent                   - The objects parent container.
     x, y, width, height      - Self Explanitory.
     back, fore               - The background and text colors.
     backPressed, forePressed - The background and text colors for when the button is pressed.
     text                     - Text contents.
 
-  Optional Variables:
+  Variables:
     disabled - Disabled buttons still get rendered, they just can no longer accept inputs.  This is generally "good enough".
     switch   - Turns the button into a toggle switch.  Like a fat radio button.
     theme    - Currently only accepts "Rounded" which slices off the corners.
